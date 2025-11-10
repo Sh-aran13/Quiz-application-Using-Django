@@ -590,13 +590,14 @@
 
 <!-- Quiz Table -->
 <div class="card">
-    <h3>📚 Your Quizzes</h3>
+    <h3>📚 All Quizzes</h3>
     
     {% if quizzes %}
     <table>
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Created By</th>
                 <th>Description</th>
                 <th>Time Limit</th>
                 <th>Status</th>
@@ -608,6 +609,13 @@
             {% for quiz in quizzes %}
             <tr>
                 <td><strong>{{ quiz.title }}</strong></td>
+                <td>
+                    {% if quiz.created_by == request.user %}
+                        Me
+                    {% else %}
+                        {{ quiz.created_by.username }} ({{ quiz.created_by.role }})
+                    {% endif %}
+                </td>
                 <td>{{ quiz.description|truncatewords:10 }}</td>
                 <td>{{ quiz.time_limit }} mins</td>
                 <td>
@@ -634,7 +642,7 @@
     {% else %}
     <div class="empty-state">
         <div class="empty-state-icon">🎯</div>
-        <p>No quizzes created yet. Create your first quiz to get started!</p>
+        <p>No quizzes available. Create your first quiz to get started!</p>
     </div>
     {% endif %}
 </div>

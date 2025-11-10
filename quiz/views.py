@@ -111,7 +111,8 @@ def admin_dashboard(request):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    quizzes = Quiz.objects.filter(created_by=request.user).annotate(
+    # Show all quizzes for admin users, not just their own
+    quizzes = Quiz.objects.all().annotate(
         attempt_count=Count('attempts')
     )
     
@@ -120,7 +121,7 @@ def admin_dashboard(request):
     context = {
         'quizzes': quizzes,
         'total_quizzes': quizzes.count(),
-        'total_attempts': QuizAttempt.objects.filter(quiz__created_by=request.user).count(),
+        'total_attempts': QuizAttempt.objects.count(),
         'active_quizzes_count': active_quizzes_count,
     }
     
@@ -195,7 +196,7 @@ def add_questions(request, quiz_id):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = Question.objects.filter(quiz=quiz)
     
     if request.method == 'POST':
@@ -229,7 +230,7 @@ def delete_question(request, question_id):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    question = get_object_or_404(Question, id=question_id, quiz__created_by=request.user)
+    question = get_object_or_404(Question, id=question_id)
     quiz_id = question.quiz.id
     question.delete()
     messages.success(request, 'Question deleted successfully!')
@@ -247,7 +248,7 @@ def edit_question(request, question_id):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    question = get_object_or_404(Question, id=question_id, quiz__created_by=request.user)
+    question = get_object_or_404(Question, id=question_id)
     
     if request.method == 'POST':
         form = QuestionForm(request.POST, instance=question)
@@ -277,7 +278,7 @@ def toggle_quiz_status(request, quiz_id):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
     quiz.is_active = not quiz.is_active
     quiz.save()
     
@@ -297,7 +298,7 @@ def delete_quiz(request, quiz_id):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
     
     if request.method == 'POST':
         quiz_title = quiz.title
@@ -320,14 +321,14 @@ def view_results(request):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    quizzes = Quiz.objects.filter(created_by=request.user)
+    quizzes = Quiz.objects.all()
     selected_quiz_id = request.GET.get('quiz_id')
     
     attempts = None
     selected_quiz = None
     
     if selected_quiz_id:
-        selected_quiz = get_object_or_404(Quiz, id=selected_quiz_id, created_by=request.user)
+        selected_quiz = get_object_or_404(Quiz, id=selected_quiz_id)
         attempts = QuizAttempt.objects.filter(
             quiz=selected_quiz,
             is_completed=True
@@ -353,7 +354,7 @@ def export_results_excel(request, quiz_id):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
     attempts = QuizAttempt.objects.filter(
         quiz=quiz,
         is_completed=True
@@ -427,7 +428,7 @@ def export_results_pdf(request, quiz_id):
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
-    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
     attempts = QuizAttempt.objects.filter(
         quiz=quiz,
         is_completed=True
