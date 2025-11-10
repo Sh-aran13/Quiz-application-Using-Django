@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-kibw^($k-f13&jau1=)1cp7ga+@of-1wpex-j4%2vxfomkxe(^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['quiz-application-using-django.onrender.com']
+
 
 
 # Application definition
