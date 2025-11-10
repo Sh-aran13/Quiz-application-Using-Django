@@ -1,0 +1,12 @@
+{
+    "python.defaultInterpreterPath": "python",
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none"
+    },
+    "css.validate": false,
+    "html.validate.styles": false,
+    "html.validate.scripts": false,
+    "javascript.validate.enable": false
+}

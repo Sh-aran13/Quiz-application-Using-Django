@@ -1,0 +1,476 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Quiz Result{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    
+    .result-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .score-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .score-section {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .score-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        animation: slideInLeft 0.8s ease-out;
+    }
+    
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .chart-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: slideInRight 0.8s ease-out;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .score-display {
+        font-size: 4rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 20px 0;
+    }
+    
+    .percentage-badge {
+        display: inline-block;
+        padding: 15px 40px;
+        border-radius: 50px;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 20px 0;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+    
+    .badge-excellent {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4);
+    }
+    
+    .badge-good {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 10px 30px rgba(240, 147, 251, 0.4);
+    }
+    
+    .badge-poor {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+        box-shadow: 0 10px 30px rgba(250, 112, 154, 0.4);
+    }
+    
+    .view-answers-btn {
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 30px 0;
+    }
+    
+    .view-answers-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+    }
+    
+    .answers-section {
+        display: none;
+        animation: slideDown 0.5s ease-out;
+    }
+    
+    .answers-section.active {
+        display: block;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .answer-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid;
+        transition: all 0.3s ease;
+    }
+    
+    .answer-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .answer-card.correct {
+        border-left-color: #38a169;
+        background: linear-gradient(90deg, #c6f6d5 0%, white 100%);
+    }
+    
+    .answer-card.incorrect {
+        border-left-color: #e53e3e;
+        background: linear-gradient(90deg, #fed7d7 0%, white 100%);
+    }
+    
+    .answer-card.unanswered {
+        border-left-color: #718096;
+        background: linear-gradient(90deg, #e2e8f0 0%, white 100%);
+    }
+    
+    .option {
+        padding: 12px 15px;
+        margin: 8px 0;
+        border-radius: 10px;
+        background: #f7fafc;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .option.correct {
+        background: #48bb78;
+        color: white;
+        font-weight: 600;
+        border-color: #38a169;
+    }
+    
+    .option.selected {
+        border-color: #667eea;
+        font-weight: 600;
+    }
+    
+    .btn-primary {
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(17, 153, 142, 0.6);
+    }
+    
+    h2 {
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    h3 {
+        color: #2d3748;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <h2 style="color: #2d3748;">📊 Quiz Result</h2>
+    
+    <div class="score-section">
+        <!-- Score Card -->
+        <div class="score-card">
+            <h3>{{ attempt.quiz.title }}</h3>
+            
+            <div class="score-display">
+                {{ attempt.score }} / {{ attempt.total_marks }}
+            </div>
+            
+            <div class="percentage-badge {% if attempt.percentage >= 75 %}badge-excellent{% elif attempt.percentage >= 50 %}badge-good{% else %}badge-poor{% endif %}">
+                {{ attempt.percentage }}%
+            </div>
+            
+            <div style="font-size: 1.3rem; margin-top: 20px; color: #4a5568;">
+                {% if attempt.percentage >= 75 %}
+                    <strong>🎉 Excellent Work!</strong>
+                {% elif attempt.percentage >= 50 %}
+                    <strong>👍 Good Job!</strong>
+                {% else %}
+                    <strong>💪 Keep Practicing!</strong>
+                {% endif %}
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 1.1rem; color: #718096;">
+                <p><strong>Correct Answers:</strong> {{ correct_count }}</p>
+                <p><strong>Wrong Answers:</strong> {{ wrong_count }}</p>
+                <p><strong>Unanswered:</strong> {{ unanswered_count }}</p>
+                <p><strong>Total Questions:</strong> {{ total_questions }}</p>
+                {% if unanswered_count > 0 %}
+                <p style="margin-top: 15px; color: #718096; font-style: italic;">
+                    <strong>Note:</strong> {{ unanswered_count }} question{{ unanswered_count|pluralize }} left unanswered.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Pie Chart Card -->
+        <div class="chart-card">
+            <h3>Answer Distribution</h3>
+            <canvas id="scoreChart" width="300" height="300"></canvas>
+            <div style="margin-top: 20px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 20px; background: #38a169; border-radius: 4px;"></div>
+                    <span>Correct ({{ correct_count }})</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 20px; background: #e53e3e; border-radius: 4px;"></div>
+                    <span>Wrong ({{ wrong_count }})</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 20px; background: #718096; border-radius: 4px;"></div>
+                    <span>Unanswered ({{ unanswered_count }})</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Answers Button -->
+    <div style="text-align: center;">
+        <button class="view-answers-btn" onclick="toggleAnswers()">
+            <span id="btnText">📝 View Answers</span>
+        </button>
+    </div>
+    
+    <!-- Answers Section (Hidden by default) -->
+    <div class="answers-section" id="answersSection">
+        <div style="background: rgba(255, 255, 255, 0.95); border-radius: 25px; padding: 30px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);">
+            <h3>📚 Answer Review</h3>
+            
+            {% for answer in answers %}
+            <div class="answer-card {% if answer.is_correct %}correct{% elif answer.selected_answer %}incorrect{% else %}unanswered{% endif %}">
+                <h4 style="margin-bottom: 15px; color: #2d3748;">
+                    Question {{ forloop.counter }}: 
+                    {% if answer.is_correct %}
+                        <span style="color: #38a169;">✓ Correct</span>
+                    {% elif answer.selected_answer %}
+                        <span style="color: #e53e3e;">✗ Incorrect</span>
+                    {% else %}
+                        <span style="color: #718096;">❓ Unanswered</span>
+                    {% endif %}
+                </h4>
+                
+                <p style="margin-bottom: 15px; font-weight: 600; color: #2d3748; font-size: 1.1rem;">{{ answer.question.question_text }}</p>
+                
+                <div>
+                    <div class="option {% if answer.question.correct_answer == 'A' %}correct{% endif %} {% if answer.selected_answer == 'A' %}selected{% endif %}">
+                        <strong>A.</strong> {{ answer.question.option_a }}
+                        {% if answer.selected_answer == 'A' %}<strong> (Your Answer)</strong>{% endif %}
+                    </div>
+                    
+                    <div class="option {% if answer.question.correct_answer == 'B' %}correct{% endif %} {% if answer.selected_answer == 'B' %}selected{% endif %}">
+                        <strong>B.</strong> {{ answer.question.option_b }}
+                        {% if answer.selected_answer == 'B' %}<strong> (Your Answer)</strong>{% endif %}
+                    </div>
+                    
+                    <div class="option {% if answer.question.correct_answer == 'C' %}correct{% endif %} {% if answer.selected_answer == 'C' %}selected{% endif %}">
+                        <strong>C.</strong> {{ answer.question.option_c }}
+                        {% if answer.selected_answer == 'C' %}<strong> (Your Answer)</strong>{% endif %}
+                    </div>
+                    
+                    <div class="option {% if answer.question.correct_answer == 'D' %}correct{% endif %} {% if answer.selected_answer == 'D' %}selected{% endif %}">
+                        <strong>D.</strong> {{ answer.question.option_d }}
+                        {% if answer.selected_answer == 'D' %}<strong> (Your Answer)</strong>{% endif %}
+                    </div>
+                </div>
+                
+                <p style="margin-top: 15px; color: #4a5568;">
+                    {% if answer.selected_answer %}
+                    <strong>Your Answer:</strong> <span style="color: #667eea; font-weight: 700;">Option {{ answer.selected_answer }}</span> |
+                    {% else %}
+                    <strong>Your Answer:</strong> <span style="color: #718096; font-weight: 700;">Not Answered</span> |
+                    {% endif %}
+                    <strong>Correct Answer:</strong> <span style="color: #38a169; font-weight: 700;">Option {{ answer.question.correct_answer }}</span>
+                    | <strong>Marks:</strong> {{ answer.question.marks }}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{% url 'student_dashboard' %}" class="btn-primary">🏠 Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Toggle answers section
+function toggleAnswers() {
+    const section = document.getElementById('answersSection');
+    const btnText = document.getElementById('btnText');
+    
+    if (section.classList.contains('active')) {
+        section.classList.remove('active');
+        btnText.innerHTML = '📝 View Answers';
+    } else {
+        section.classList.add('active');
+        btnText.innerHTML = '✖ Hide Answers';
+        // Scroll to answers section
+        setTimeout(() => {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+}
+
+// Create pie chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('scoreChart').getContext('2d');
+    const correctCount = {{ correct_count }};
+    const wrongCount = {{ wrong_count }};
+    const unansweredCount = {{ unanswered_count }};
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Correct', 'Wrong', 'Unanswered'],
+            datasets: [{
+                data: [correctCount, wrongCount, unansweredCount],
+                backgroundColor: [
+                    '#38a169',
+                    '#e53e3e',
+                    '#718096'
+                ],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const total = correctCount + wrongCount + unansweredCount;
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

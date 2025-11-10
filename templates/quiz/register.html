@@ -1,0 +1,287 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Register - Quiz Application{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes rollIn {
+        0% {
+            transform: translateX(-100%) rotate(-540deg);
+            opacity: 0;
+        }
+        100% {
+            transform: translateX(0) rotate(0deg);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0.3);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInUp {
+        0% {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+    
+    .register-container {
+        animation: rollIn 0.8s ease-out;
+    }
+    
+    .register-container h2 {
+        animation: bounceIn 0.8s ease-out 0.2s both;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: bounceIn 0.8s ease-out 0.2s both, shimmer 3s linear infinite;
+    }
+    
+    .register-container .card {
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+        transition: all 0.3s ease;
+    }
+    
+    .register-container .card:hover {
+        transform: translateY(-10px) rotateX(5deg);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+    }
+    
+    .form-group {
+        animation: fadeInUp 0.5s ease-out both;
+        transition: transform 0.2s ease;
+    }
+    
+    .form-group:hover {
+        transform: translateX(5px);
+    }
+    
+    .form-group:nth-child(1) { animation-delay: 0.5s; }
+    .form-group:nth-child(2) { animation-delay: 0.6s; }
+    .form-group:nth-child(3) { animation-delay: 0.7s; }
+    .form-group:nth-child(4) { animation-delay: 0.8s; }
+    .form-group:nth-child(5) { animation-delay: 0.9s; }
+    .form-group:nth-child(6) { animation-delay: 1.0s; }
+    .form-group:nth-child(7) { animation-delay: 1.1s; }
+    .form-group:nth-child(8) { animation-delay: 1.2s; }
+    
+    .role-selector {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .role-option {
+        flex: 1;
+        padding: 15px;
+        border: 2px solid #cbd5e0;
+        border-radius: 10px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .role-option:hover {
+        transform: scale(1.05) rotateZ(2deg);
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .role-option.selected {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        transform: scale(1.05);
+    }
+    
+    .btn {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn:hover::after {
+        width: 400px;
+        height: 400px;
+    }
+    
+    .btn:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6);
+    }
+    
+    .btn:active {
+        transform: translateY(0) scale(0.98);
+    }
+    
+    .login-link {
+        animation: fadeInUp 0.6s ease-out 1.3s both;
+    }
+    
+    input, select {
+        transition: all 0.3s ease;
+    }
+    
+    input:focus, select:focus {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container" style="max-width: 600px; margin: 50px auto;">
+    <h2 style="text-align: center; margin-bottom: 30px; font-size: 2.5rem; font-weight: bold;">Join Quiz App</h2>
+    
+    <div class="card">
+        <form method="post" id="registerForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label style="font-size: 1.1rem; margin-bottom: 10px;">Select Your Role:</label>
+                <div class="role-selector">
+                    <div class="role-option" onclick="selectRole('student')" id="studentRole">
+                        <div style="font-size: 2rem; margin-bottom: 5px;">🎓</div>
+                        <strong>Student</strong>
+                    </div>
+                    <div class="role-option" onclick="selectRole('admin')" id="adminRole">
+                        <div style="font-size: 2rem; margin-bottom: 5px;">👨‍💼</div>
+                        <strong>Admin</strong>
+                    </div>
+                </div>
+                <input type="hidden" name="role" id="roleSelect" required>
+            </div>
+            
+            <div id="commonFields" style="display: none;">
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone:</label>
+                    <input type="text" name="phone" required>
+                </div>
+                
+                <div id="studentFields" style="display: none;">
+                    <div class="form-group">
+                        <label>Roll Number:</label>
+                        <input type="text" name="roll_number" id="rollNumber">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Branch:</label>
+                        <input type="text" name="branch" id="branch">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" name="password1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Confirm Password:</label>
+                    <input type="password" name="password2" required>
+                </div>
+                
+                {% if form.errors %}
+                <div class="alert alert-error">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <p>{{ field }}: {{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+            </div>
+        </form>
+        
+        <p class="login-link" style="text-align: center; margin-top: 20px;">
+            Already have an account? <a href="{% url 'login' %}" style="color: #667eea; font-weight: bold; text-decoration: none;">Login here</a>
+        </p>
+    </div>
+</div>
+
+<script>
+function selectRole(role) {
+    const studentRole = document.getElementById('studentRole');
+    const adminRole = document.getElementById('adminRole');
+    const commonFields = document.getElementById('commonFields');
+    const studentFields = document.getElementById('studentFields');
+    const rollNumber = document.getElementById('rollNumber');
+    const branch = document.getElementById('branch');
+    const roleInput = document.getElementById('roleSelect');
+    
+    // Remove selected class
+    studentRole.classList.remove('selected');
+    adminRole.classList.remove('selected');
+    
+    // Add selected class and show fields
+    if (role === 'student') {
+        studentRole.classList.add('selected');
+        roleInput.value = 'student';
+        commonFields.style.display = 'block';
+        studentFields.style.display = 'block';
+        rollNumber.required = true;
+        branch.required = true;
+    } else {
+        adminRole.classList.add('selected');
+        roleInput.value = 'admin';
+        commonFields.style.display = 'block';
+        studentFields.style.display = 'none';
+        rollNumber.required = false;
+        branch.required = false;
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{
+    "reportMissingImports": false,
+    "reportMissingModuleSource": false,
+    "reportMissingTypeStubs": false,
+    "reportUnknownVariableType": false,
+    "reportAny": false,
+    "reportAttributeAccessIssue": false,
+    "reportOptionalMemberAccess": false,
+    "reportOptionalSubscript": false,
+    "reportArgumentType": false,
+    "reportUnusedImport": false,
+    "reportUnknownParameterType": false,
+    "reportMissingParameterType": false,
+    "reportUnknownMemberType": false,
+    "reportUnknownArgumentType": false,
+    "reportUnusedVariable": false,
+    "reportUnusedCallResult": false,
+    "reportOperatorIssue": false,
+    "reportUnannotatedClassAttribute": false,
+    "reportIncompatibleMethodOverride": false,
+    "reportImplicitOverride": false,
+    "reportIncompatibleVariableOverride": false
+}

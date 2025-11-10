@@ -1,0 +1,561 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Quiz Application{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    <style>
+        *, *::after, *::before {
+            margin: 0;
+            padding: 0;
+            box-sizing: inherit;
+        }
+
+        html {
+            height: 100%;
+            font-size: 65.2%;
+            box-sizing: border-box;
+            font-family: Montserrat, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            font-weight: 400;
+        }
+
+        body {
+            height: 100%;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #1d2129;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            perspective: 1500px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* Animated background particles */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .floating-shape {
+            position: absolute;
+            opacity: 0.3;
+            animation: float-up linear infinite;
+        }
+        
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .circle {
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .square {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+        
+        .triangle {
+            width: 0;
+            height: 0;
+            background: transparent;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 52px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 3.5em;
+            text-align: center;
+        }
+
+        .messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #38a169;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #e53e3e;
+        }
+
+        form input {
+            background: #eee;
+            border: none;
+            padding: 10px 12px;
+            margin: 6px 0;
+            width: 100%;
+            font-size: 1.3em;
+        }
+
+        span {
+            color: #333;
+            font-size: 1.4em;
+            display: inline-block;
+            margin: 15px auto;
+            font-weight: 100;
+        }
+
+        button {
+            display: block;
+            margin: 0.8em auto;
+            border-radius: 40px;
+            border: 1px solid #ff4b2b;
+            background: #ff4b2b;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: bold;
+            padding: 0.7em 2em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: transform 80ms ease-in;
+        }
+
+        button:hover {
+            cursor: pointer;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        #container {
+            width: 95%;
+            max-width: 800px;
+            height: 600px;
+            position: relative;
+            border-radius: 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), 0 0 100px rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            z-index: 1;
+        }
+
+        #container > div {
+            position: absolute;
+            width: 50%;
+            min-width: 350px;
+            height: 100%;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content {
+            width: 100%;
+            padding: 2em 3em;
+            text-align: center;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        .content::-webkit-scrollbar-thumb {
+            background: rgba(255, 75, 43, 0.5);
+            border-radius: 10px;
+        }
+        
+        .content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 75, 43, 0.8);
+        }
+
+        .content p {
+            font-size: 1.4em;
+        }
+        
+        .content h1 {
+            font-size: 2.8em;
+            margin-bottom: 0.5em;
+        }
+
+        .login {
+            left: 0;
+            background: #FAFAFA;
+            border-radius: 20px 0 0 20px;
+        }
+
+        .login button {
+            border-radius: 0px;
+            width: 100%;
+        }
+
+        .register {
+            right: 0;
+            z-index: 1;
+            border-radius: 0 20px 20px 0;
+            background: #FAFAFA;
+        }
+
+        .register button {
+            border-radius: 0px;
+            width: 100%;
+        }
+
+        .page {
+            right: 0;
+            color: #fff;
+            border-radius: 0 20px 20px 0;
+            transform-origin: left center;
+            transition: animation 1s linear;
+        }
+
+        .page button {
+            border-color: #fff;
+            background: transparent;
+        }
+
+        .page p {
+            margin: 2em auto;
+        }
+
+        .front {
+            background: linear-gradient(-45deg, #667eea 0%, #764ba2 100%) no-repeat 0 0/200%;
+            z-index: 3;
+        }
+
+        .back {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) no-repeat 0 0/200%;
+            z-index: 2;
+        }
+
+        .back .content {
+            transform: rotateY(180deg);
+        }
+
+        .active .front {
+            animation: rot-front 0.6s ease-in-out normal forwards;
+        }
+
+        .active .back {
+            animation: rot-back 0.6s ease-in-out normal forwards;
+        }
+
+        .close .front {
+            animation: close-rot-front 0.6s ease-in-out normal forwards;
+        }
+
+        .close .back {
+            animation: close-rot-back 0.6s ease-in-out normal forwards;
+        }
+
+        @keyframes rot-front {
+            from {
+                transform: translateZ(2px) rotateY(0deg);
+            }
+            to {
+                transform: translateZ(1px) rotateY(-180deg);
+            }
+        }
+
+        @keyframes close-rot-front {
+            from {
+                transform: translateZ(1px) rotateY(-180deg);
+            }
+            to {
+                transform: translateZ(2px) rotateY(0deg);
+            }
+        }
+
+        @keyframes rot-back {
+            from {
+                transform: translateZ(1px) rotateY(0deg);
+            }
+            to {
+                transform: translateZ(2px) rotateY(-180deg);
+            }
+        }
+
+        @keyframes close-rot-back {
+            from {
+                transform: translateZ(2px) rotateY(-180deg);
+            }
+            to {
+                transform: translateZ(1px) rotateY(0deg);
+            }
+        }
+
+        .active .register .content {
+            animation: show 0.7s ease-in-out normal forwards;
+        }
+
+        .close .register .content {
+            animation: hide 0.7s ease-in-out normal forwards;
+        }
+
+        .active .login .content {
+            animation: hide 0.7s ease-in-out normal forwards;
+        }
+
+        .close .login .content {
+            animation: show 0.7s ease-in-out normal forwards;
+        }
+
+        @keyframes show {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 0.99;
+                transform: scale(0.99);
+            }
+        }
+
+        @keyframes hide {
+            from {
+                opacity: 0.99;
+                transform: scale(0.99);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .role-option {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 1.1em;
+        }
+        
+        .role-option:hover {
+            border-color: #ff4b2b;
+        }
+        
+        .role-option.selected {
+            background: #ff4b2b;
+            color: white;
+            border-color: #ff4b2b;
+        }
+        
+        #studentFields {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation" id="bgAnimation"></div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div id="container" class="{% if show_register %}active{% endif %}">
+        <!-- Login Section -->
+        <div class="login">
+            <div class="content">
+                <h1>Login</h1>
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Register Section -->
+        <div class="register">
+            <div class="content">
+                <h1>Register</h1>
+                <form method="post" action="{% url 'register' %}" id="registerForm">
+                    {% csrf_token %}
+                    <div class="role-selector">
+                        <div class="role-option selected" onclick="selectRole('student')" id="studentRole">
+                            🎓 Student
+                        </div>
+                        <div class="role-option" onclick="selectRole('admin')" id="adminRole" style="display: none;">
+                            👨‍💼 Admin
+                        </div>
+                    </div>
+                    <input type="hidden" name="role" id="roleInput" value="student" required>
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="text" name="phone" placeholder="Phone" required>
+                    <div id="studentFields" style="display: block;">
+                        <input type="text" name="roll_number" id="rollNumber" placeholder="Roll Number" required>
+                        <input type="text" name="branch" id="branch" placeholder="Branch" required>
+                    </div>
+                    <input type="password" name="password1" placeholder="Password" required>
+                    <input type="password" name="password2" placeholder="Confirm Password" required>
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Flip Card Front -->
+        <div class="page front">
+            <div class="content">
+                <h1>Welcome Back!</h1>
+                <p>To keep connected with us please login with your personal info</p>
+                <button onclick="flipToRegister()">Sign Up</button>
+            </div>
+        </div>
+
+        <!-- Flip Card Back -->
+        <div class="page back">
+            <div class="content">
+                <h1>Hello, Friend!</h1>
+                <p>Enter your personal details and start your journey with us</p>
+                <button onclick="flipToLogin()">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create animated background shapes
+        function createBackgroundAnimation() {
+            const container = document.getElementById('bgAnimation');
+            const shapeCount = 25;
+            const shapes = ['circle', 'square', 'triangle'];
+            
+            for (let i = 0; i < shapeCount; i++) {
+                const shape = document.createElement('div');
+                const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
+                shape.className = `floating-shape ${shapeType}`;
+                
+                const size = Math.random() * 60 + 30;
+                if (shapeType !== 'triangle') {
+                    shape.style.width = size + 'px';
+                    shape.style.height = size + 'px';
+                }
+                
+                shape.style.left = Math.random() * 100 + '%';
+                shape.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                shape.style.animationDelay = Math.random() * 5 + 's';
+                
+                container.appendChild(shape);
+            }
+        }
+        
+        // Initialize background animation
+        window.addEventListener('DOMContentLoaded', function() {
+            createBackgroundAnimation();
+        });
+        
+        const container = document.getElementById('container');
+
+        function flipToRegister() {
+            container.classList.remove('close');
+            container.classList.add('active');
+        }
+
+        function flipToLogin() {
+            container.classList.remove('active');
+            container.classList.add('close');
+        }
+
+        function selectRole(role) {
+            const studentRole = document.getElementById('studentRole');
+            const adminRole = document.getElementById('adminRole');
+            const studentFields = document.getElementById('studentFields');
+            const rollNumber = document.getElementById('rollNumber');
+            const branch = document.getElementById('branch');
+            const roleInput = document.getElementById('roleInput');
+
+            studentRole.classList.remove('selected');
+            adminRole.classList.remove('selected');
+
+            if (role === 'student') {
+                studentRole.classList.add('selected');
+                roleInput.value = 'student';
+                studentFields.style.display = 'block';
+                rollNumber.required = true;
+                branch.required = true;
+            } else {
+                adminRole.classList.add('selected');
+                roleInput.value = 'admin';
+                studentFields.style.display = 'none';
+                rollNumber.required = false;
+                branch.required = false;
+            }
+        }
+    </script>
+</body>
+</html>

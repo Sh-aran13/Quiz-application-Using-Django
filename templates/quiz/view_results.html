@@ -1,0 +1,598 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}View Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+    
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+    
+    /* Animated background with particles */
+    .particles-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        animation: rise linear infinite;
+    }
+    
+    @keyframes rise {
+        0% {
+            transform: translateY(100vh) scale(0);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100px) scale(1);
+            opacity: 0;
+        }
+    }
+    
+    /* Page title animation */
+    h2 {
+        animation: titleEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        color: #2d3748;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    @keyframes titleEntrance {
+        from {
+            transform: translateY(-50px) rotateX(90deg);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0) rotateX(0deg);
+            opacity: 1;
+        }
+    }
+    
+    /* Glass morphism cards */
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        padding: 35px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: cardSlideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        margin-bottom: 30px;
+    }
+    
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes cardSlideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            45deg,
+            transparent 30%,
+            rgba(102, 126, 234, 0.1) 50%,
+            transparent 70%
+        );
+        animation: shimmer 4s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(100%) rotate(45deg);
+        }
+    }
+    
+    /* Form elements */
+    .form-group {
+        animation: fadeIn 0.6s ease-out 0.3s both;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 12px;
+        color: #2d3748;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .form-group select {
+        width: 100%;
+        padding: 18px 25px;
+        border: 2px solid transparent;
+        border-radius: 15px;
+        background: #f7fafc;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .form-group select:focus,
+    .form-group select:hover {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Results header */
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
+        animation: slideInLeft 0.8s ease-out 0.5s both;
+    }
+    
+    @keyframes slideInLeft {
+        from {
+            transform: translateX(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .results-header h3 {
+        color: #2d3748;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        padding-left: 20px;
+    }
+    
+    .results-header h3::before {
+        content: '📊';
+        position: absolute;
+        left: 0;
+        animation: iconBounce 2s infinite;
+    }
+    
+    @keyframes iconBounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    /* Download buttons */
+    .download-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        animation: slideInRight 0.8s ease-out 0.6s both;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Buttons with ripple effect */
+    .btn {
+        position: relative;
+        padding: 15px 35px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn:hover::before {
+        width: 400px;
+        height: 400px;
+    }
+    
+    .btn:hover {
+        transform: translateY(-5px);
+    }
+    
+    .btn:active {
+        transform: translateY(-2px);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+    }
+    
+    .btn-success:hover {
+        box-shadow: 0 12px 35px rgba(17, 153, 142, 0.6);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(250, 112, 154, 0.4);
+    }
+    
+    .btn-danger:hover {
+        box-shadow: 0 12px 35px rgba(250, 112, 154, 0.6);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary:hover {
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+    }
+    
+    /* Advanced table styling */
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+        animation: tableReveal 1s ease-out 0.7s both;
+    }
+    
+    @keyframes tableReveal {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    thead tr {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    th {
+        padding: 20px 18px;
+        text-align: left;
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        border: none;
+    }
+    
+    th:first-child {
+        border-radius: 15px 0 0 15px;
+    }
+    
+    th:last-child {
+        border-radius: 0 15px 15px 0;
+    }
+    
+    tbody tr {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 15px;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        opacity: 0;
+        animation: rowSlide 0.6s ease-out forwards;
+    }
+    
+    tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    tbody tr:nth-child(n+6) { animation-delay: 0.6s; }
+    
+    @keyframes rowSlide {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    tbody tr:hover {
+        background: rgba(102, 126, 234, 0.15);
+        transform: translateX(10px) scale(1.01);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    td {
+        padding: 18px;
+        color: #2d3748;
+        font-size: 0.95rem;
+        border: none;
+        font-weight: 500;
+    }
+    
+    td:first-child {
+        border-radius: 15px 0 0 15px;
+        font-weight: 700;
+    }
+    
+    td:last-child {
+        border-radius: 0 15px 15px 0;
+    }
+    
+    /* Percentage badges with glow */
+    .percentage-badge {
+        display: inline-block;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        animation: badgePulse 2s infinite;
+    }
+    
+    @keyframes badgePulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+    
+    .badge-excellent {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 0 20px rgba(56, 239, 125, 0.5);
+    }
+    
+    .badge-good {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+        box-shadow: 0 0 20px rgba(254, 225, 64, 0.5);
+    }
+    
+    .badge-poor {
+        background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+        color: white;
+        box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        animation: fadeIn 1s ease-out;
+    }
+    
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+    
+    .empty-state p {
+        font-size: 1.2rem;
+        color: #718096;
+    }
+    
+    /* Back button container */
+    .back-button-container {
+        margin-top: 40px;
+        animation: fadeInUp 0.8s ease-out 0.8s both;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Animated particles background -->
+<div class="particles-bg" id="particlesBg"></div>
+
+<h2 style="margin-bottom: 40px;">🏆 Quiz Results Dashboard</h2>
+
+<div class="card">
+    <form method="get">
+        <div class="form-group">
+            <label>📋 Select Quiz:</label>
+            <select name="quiz_id" onchange="this.form.submit()">
+                <option value="">-- Select a Quiz --</option>
+                {% for quiz in quizzes %}
+                <option value="{{ quiz.id }}" {% if selected_quiz and selected_quiz.id == quiz.id %}selected{% endif %}>
+                    {{ quiz.title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+{% if selected_quiz %}
+<div class="card">
+    <div class="results-header">
+        <h3><br>{{ selected_quiz.title }}</h3>
+        <div class="download-buttons">
+            <a href="{% url 'export_results_excel' selected_quiz.id %}" class="btn btn-success">
+                📊 Download Excel
+            </a>
+            <a href="{% url 'export_results_pdf' selected_quiz.id %}" class="btn btn-danger">
+                📄 Download PDF
+            </a>
+        </div>
+    </div>
+    
+    {% if attempts %}
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Student Name</th>
+                <th>Roll Number</th>
+                <th>Email</th>
+                <th>Score</th>
+                <th>Total Marks</th>
+                <th>Percentage</th>
+                <th>Completed At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attempt in attempts %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><strong>{{ attempt.student.username }}</strong></td>
+                <td>{{ attempt.student.roll_number|default:"N/A" }}</td>
+                <td>{{ attempt.student.email }}</td>
+                <td><strong>{{ attempt.score }}</strong></td>
+                <td>{{ attempt.total_marks }}</td>
+                <td>
+                    <span class="percentage-badge {% if attempt.percentage >= 75 %}badge-excellent{% elif attempt.percentage >= 50 %}badge-good{% else %}badge-poor{% endif %}">
+                        {{ attempt.percentage }}%
+                    </span>
+                </td>
+                <td>{{ attempt.completed_at|date:"M d, Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <p>No attempts yet for this quiz.</p>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="back-button-container">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-primary">← Back to Dashboard</a>
+</div>
+
+<script>
+// Create animated particles
+function createParticles() {
+    const container = document.getElementById('particlesBg');
+    const particleCount = 40;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 4 + 2;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        
+        container.appendChild(particle);
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    createParticles();
+});
+</script>
+{% endblock %}
