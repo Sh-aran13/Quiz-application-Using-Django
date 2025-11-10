@@ -77,11 +77,15 @@ WSGI_APPLICATION = 'quiz_project.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"postgres://postgres:1328@localhost:5432/quizdb",
+        default=os.getenv('DATABASE_URL'),  # must be set in Render environment
         conn_max_age=600,
         ssl_require=True
     )
 }
+
+# Add a check to ensure DATABASE_URL is set
+if not os.getenv('DATABASE_URL'):
+    raise Exception("DATABASE_URL environment variable not set")
 
 
 # Password validation
