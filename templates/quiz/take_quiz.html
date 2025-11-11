@@ -4,6 +4,20 @@
 
 {% block extra_css %}
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
+    
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Playfair Display', serif;
+    }
+    
     .question-container {
         display: none;
     }
@@ -135,6 +149,7 @@
         font-weight: 700;
         color: #2d3748;
         margin-bottom: 15px;
+        font-family: 'Playfair Display', serif;
     }
     
     .modal-message {
@@ -160,6 +175,7 @@
         transition: all 0.3s ease;
         text-transform: uppercase;
         letter-spacing: 1px;
+        font-family: 'Inter', sans-serif;
     }
     
     .modal-btn-confirm {

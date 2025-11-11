@@ -26,8 +26,23 @@ SECRET_KEY = 'django-insecure-kibw^($k-f13&jau1=)1cp7ga+@of-1wpex-j4%2vxfomkxe(^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['quiz-application-using-django.onrender.com']
+# CSRF Settings
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_AGE = 3600  # 1 hour
+CSRF_COOKIE_DOMAIN = None
 
+ALLOWED_HOSTS = ['quiz-application-using-django.onrender.com', '127.0.0.1', 'localhost']
+
+# CSRF Trusted Origins
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'http://127.0.0.1',
+    'http://localhost',
+]
 
 
 # Application definition
@@ -75,17 +90,27 @@ WSGI_APPLICATION = 'quiz_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),  # must be set in Render environment
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    db_config = dj_database_url.config(
+        default=database_url,
         conn_max_age=600,
         ssl_require=True
     )
-}
+else:
+    # Default to PostgreSQL database with provided credentials
+    db_config = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'quizdb',
+        'USER': 'postgres',
+        'PASSWORD': '1328',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 
-# Add a check to ensure DATABASE_URL is set
-if not os.getenv('DATABASE_URL'):
-    raise Exception("DATABASE_URL environment variable not set")
+DATABASES = {
+    'default': db_config
+}
 
 
 # Password validation
@@ -136,6 +161,13 @@ AUTH_USER_MODEL = 'quiz.User'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Session Settings
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_SAVE_EVERY_REQUEST = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -4,31 +4,75 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
     
     * {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Inter', sans-serif;
+        font-size: 20px;
     }
     
     body {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Playfair Display', serif;
+    }
+    
+    /* Animated background particles */
+    .particles-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        animation: float linear infinite;
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translateY(100vh) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.3;
+        }
+        90% {
+            opacity: 0.3;
+        }
+        100% {
+            transform: translateY(-100px) rotate(720deg);
+            opacity: 0;
+        }
     }
     
     .result-container {
         max-width: 1100px;
         margin: 0 auto;
-        animation: fadeIn 0.8s ease-out;
+        animation: containerEntrance 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        z-index: 1;
     }
     
-    @keyframes fadeIn {
+    @keyframes containerEntrance {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(50px) scale(0.95);
         }
         to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
     }
     
@@ -51,18 +95,47 @@
         padding: 40px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
         text-align: center;
-        animation: slideInLeft 0.8s ease-out;
+        animation: cardEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        opacity: 0;
+        transform: translateY(30px);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
     }
     
-    @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-50px);
-        }
+    .score-card:nth-child(1) {
+        animation-delay: 0.2s;
+    }
+    
+    .score-card:nth-child(2) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes cardEntrance {
         to {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateY(0);
         }
+    }
+    
+    .score-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3);
+    }
+    
+    .score-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.5s;
+    }
+    
+    .score-card:hover::before {
+        left: 100%;
     }
     
     .chart-card {
@@ -70,32 +143,241 @@
         border-radius: 25px;
         padding: 40px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-        animation: slideInRight 0.8s ease-out;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        animation: cardEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        opacity: 0;
+        transform: translateY(30px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
     }
     
-    @keyframes slideInRight {
-        from {
+    .chart-card:nth-child(1) {
+        animation-delay: 0.3s;
+    }
+    
+    .chart-card:nth-child(2) {
+        animation-delay: 0.5s;
+    }
+    
+    .chart-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3);
+    }
+    
+    .chart-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            45deg,
+            transparent 30%,
+            rgba(102, 126, 234, 0.1) 50%,
+            transparent 70%
+        );
+        animation: shimmer 4s infinite;
+        z-index: 0;
+    }
+    
+    .chart-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 2px solid transparent;
+        border-radius: 25px;
+        background: linear-gradient(135deg, #667eea, #764ba2) border-box;
+        -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: destination-out;
+        mask-composite: exclude;
+        z-index: 1;
+        pointer-events: none;
+    }
+    
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(100%) rotate(45deg);
+        }
+    }
+    
+    .chart-container {
+        position: relative;
+        width: 350px;
+        height: 350px;
+        margin: 20px auto;
+        animation: chartAppear 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
+    }
+    
+    #scoreChart {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    
+    #chartFallback {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 50%;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+        border: 2px dashed #cbd5e0;
+    }
+    
+    @keyframes chartAppear {
+        0% {
+            transform: scale(0) rotate(180deg);
             opacity: 0;
-            transform: translateX(50px);
         }
-        to {
+        70% {
+            transform: scale(1.1) rotate(-10deg);
+        }
+        100% {
+            transform: scale(1) rotate(0deg);
             opacity: 1;
-            transform: translateX(0);
         }
+    }
+    
+    .chart-title {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+        position: relative;
+        display: inline-block;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .chart-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 2px;
+    }
+    
+    .legend-container {
+        margin-top: 30px;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        animation: fadeIn 1s ease-out 1s both;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 30px;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    
+    .legend-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.8s;
+    }
+    
+    .legend-item:hover::before {
+        transform: translateX(100%);
+    }
+    
+    .legend-item:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+    }
+    
+    .legend-color {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border: 3px solid white;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .legend-item:hover .legend-color {
+        transform: scale(1.2);
+    }
+    
+    .legend-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2d3748;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .legend-count {
+        font-size: 1.1rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-left: 5px;
     }
     
     .score-display {
         font-size: 4rem;
-        font-weight: 700;
+        font-weight: 800;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin: 20px 0;
+        animation: scorePulse 2s infinite;
+        text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+    
+    @keyframes scorePulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
     }
     
     .percentage-badge {
@@ -103,17 +385,39 @@
         padding: 15px 40px;
         border-radius: 50px;
         font-size: 1.8rem;
-        font-weight: 700;
+        font-weight: 800;
         margin: 20px 0;
-        animation: pulse 2s infinite;
+        animation: badgeFloat 3s ease-in-out infinite;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     
-    @keyframes pulse {
+    .percentage-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+    }
+    
+    .percentage-badge:hover::before {
+        left: 100%;
+    }
+    
+    @keyframes badgeFloat {
         0%, 100% {
-            transform: scale(1);
+            transform: translateY(0) rotate(0deg);
         }
-        50% {
-            transform: scale(1.05);
+        25% {
+            transform: translateY(-5px) rotate(2deg);
+        }
+        75% {
+            transform: translateY(5px) rotate(-2deg);
         }
     }
     
@@ -135,59 +439,143 @@
         box-shadow: 0 10px 30px rgba(250, 112, 154, 0.4);
     }
     
+    /* Enhanced View Answers Button */
     .view-answers-btn {
-        padding: 15px 40px;
-        font-size: 1.2rem;
+        padding: 20px 50px;
+        font-size: 1.3rem;
         font-weight: 700;
         border: none;
         border-radius: 50px;
         cursor: pointer;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        transition: all 0.3s ease;
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         text-transform: uppercase;
-        letter-spacing: 1px;
-        margin: 30px 0;
+        letter-spacing: 2px;
+        margin: 40px 0;
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        animation: buttonEntrance 1s ease-out 0.8s both;
+    }
+    
+    @keyframes buttonEntrance {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    .view-answers-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .view-answers-btn:hover::before {
+        width: 400px;
+        height: 400px;
     }
     
     .view-answers-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.7);
     }
     
+    .view-answers-btn:active {
+        transform: translateY(0) scale(0.98);
+    }
+    
+    /* Enhanced Answers Section */
     .answers-section {
         display: none;
-        animation: slideDown 0.5s ease-out;
+        animation: answersEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        margin-top: 30px;
+        opacity: 0;
+    }
+    
+    @keyframes answersEntrance {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
     
     .answers-section.active {
         display: block;
+        opacity: 1;
     }
     
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .answers-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 25px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .answers-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
     }
     
     .answer-card {
         background: white;
         border-radius: 20px;
         padding: 25px;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         border-left: 5px solid;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        overflow: hidden;
+        animation: cardSlideUp 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    .answer-card:nth-child(1) { animation-delay: 0.1s; }
+    .answer-card:nth-child(2) { animation-delay: 0.2s; }
+    .answer-card:nth-child(3) { animation-delay: 0.3s; }
+    .answer-card:nth-child(4) { animation-delay: 0.4s; }
+    .answer-card:nth-child(5) { animation-delay: 0.5s; }
+    .answer-card:nth-child(n+6) { animation-delay: 0.6s; }
+    
+    @keyframes cardSlideUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     .answer-card:hover {
-        transform: translateX(5px);
+        transform: translateX(10px) scale(1.01);
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
     }
     
@@ -206,13 +594,48 @@
         background: linear-gradient(90deg, #e2e8f0 0%, white 100%);
     }
     
+    .answer-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+    }
+    
+    .answer-card:hover::after {
+        transform: translateX(100%);
+    }
+    
     .option {
-        padding: 12px 15px;
-        margin: 8px 0;
-        border-radius: 10px;
+        padding: 15px 20px;
+        margin: 10px 0;
+        border-radius: 15px;
         background: #f7fafc;
         border: 2px solid transparent;
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .option::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+    }
+    
+    .option:hover::before {
+        transform: translateX(100%);
     }
     
     .option.correct {
@@ -220,17 +643,19 @@
         color: white;
         font-weight: 600;
         border-color: #38a169;
+        box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
     }
     
     .option.selected {
         border-color: #667eea;
         font-weight: 600;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
     }
     
     .btn-primary {
         padding: 15px 40px;
         font-size: 1.1rem;
-        font-weight: 600;
+        font-weight: 700;
         border: none;
         border-radius: 50px;
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
@@ -238,40 +663,104 @@
         text-decoration: none;
         display: inline-block;
         box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4);
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         text-transform: uppercase;
         letter-spacing: 1px;
+        margin-top: 30px;
+        position: relative;
+        overflow: hidden;
+        animation: buttonEntrance 1s ease-out 1s both;
+    }
+    
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn-primary:hover::before {
+        width: 400px;
+        height: 400px;
     }
     
     .btn-primary:hover {
-        transform: translateY(-3px);
+        transform: translateY(-5px) scale(1.05);
         box-shadow: 0 15px 40px rgba(17, 153, 142, 0.6);
     }
     
     h2 {
         color: white;
         text-align: center;
-        margin-bottom: 30px;
-        font-size: 2.5rem;
-        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        margin-bottom: 40px;
+        font-size: 2.8rem;
+        text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.3);
+        animation: titleEntrance 1s ease-out;
+        position: relative;
+        display: inline-block;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    @keyframes titleEntrance {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-30px) rotateX(90deg);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) rotateX(0deg);
+        }
+    }
+    
+    h2::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 2px;
     }
     
     h3 {
         color: #2d3748;
         margin-bottom: 20px;
         font-size: 1.8rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+    }
+    
+    h3::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 2px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="result-container">
-    <h2 style="color: #2d3748;">📊 Quiz Result</h2>
+    <h2 style="color: #2d3748;font-size: 50px;">📊 Quiz Result</h2>
     
     <div class="score-section">
         <!-- Score Card -->
         <div class="score-card">
-            <h3>{{ attempt.quiz.title }}</h3>
+            <h3 style="font-size: 25px;">{{ attempt.quiz.title }}</h3>
             
             <div class="score-display">
                 {{ attempt.score }} / {{ attempt.total_marks }}
@@ -305,21 +794,29 @@
         </div>
         
         <!-- Pie Chart Card -->
-        <div class="chart-card">
-            <h3>Answer Distribution</h3>
-            <canvas id="scoreChart" width="300" height="300"></canvas>
-            <div style="margin-top: 20px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 20px; height: 20px; background: #38a169; border-radius: 4px;"></div>
-                    <span>Correct ({{ correct_count }})</span>
+        <div class="chart-card" style="text-align: center;">
+            <h3 style="font-size: 25px; font-family: 'Playfair Display', serif; color: #2d3748; margin-bottom: 20px;">📊 Answer Distribution</h3>
+            <div class="chart-container">
+                <canvas id="scoreChart" width="350" height="350"></canvas>
+                <div id="chartFallback" style="text-align: center; padding: 20px; color: #718096; display: none;">
+                    <p>Loading chart...</p>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 20px; height: 20px; background: #e53e3e; border-radius: 4px;"></div>
-                    <span>Wrong ({{ wrong_count }})</span>
+            </div>
+            <div class="legend-container">
+                <div class="legend-item" onclick="highlightChartSegment(0)">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #4CAF50, #81C784);"></div>
+                    <span class="legend-text">Correct</span>
+                    <span class="legend-count">{{ correct_count|default:0 }}</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 20px; height: 20px; background: #718096; border-radius: 4px;"></div>
-                    <span>Unanswered ({{ unanswered_count }})</span>
+                <div class="legend-item" onclick="highlightChartSegment(1)">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #F44336, #E57373);"></div>
+                    <span class="legend-text">Wrong</span>
+                    <span class="legend-count">{{ wrong_count|default:0 }}</span>
+                </div>
+                <div class="legend-item" onclick="highlightChartSegment(2)">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #9E9E9E, #BDBDBD);"></div>
+                    <span class="legend-text">Unanswered</span>
+                    <span class="legend-count">{{ unanswered_count|default:0 }}</span>
                 </div>
             </div>
         </div>
@@ -328,14 +825,15 @@
     <!-- View Answers Button -->
     <div style="text-align: center;">
         <button class="view-answers-btn" onclick="toggleAnswers()">
-            <span id="btnText">📝 View Answers</span>
+            <span id="btnText">📝 View Detailed Answers</span>
+            <span class="arrow">⬇️</span>
         </button>
     </div>
     
     <!-- Answers Section (Hidden by default) -->
     <div class="answers-section" id="answersSection">
-        <div style="background: rgba(255, 255, 255, 0.95); border-radius: 25px; padding: 30px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);">
-            <h3>📚 Answer Review</h3>
+        <div class="answers-container">
+            <h3 style="font-size: 25px;">📚 Detailed Answer Review</h3>
             
             {% for answer in answers %}
             <div class="answer-card {% if answer.is_correct %}correct{% elif answer.selected_answer %}incorrect{% else %}unanswered{% endif %}">
@@ -350,7 +848,7 @@
                     {% endif %}
                 </h4>
                 
-                <p style="margin-bottom: 15px; font-weight: 600; color: #2d3748; font-size: 1.1rem;">{{ answer.question.question_text }}</p>
+                <p style="margin-bottom: 15px; font-weight: 600; color: #2d3748; font-size: 1.4rem;">{{ answer.question.question_text }}</p>
                 
                 <div>
                     <div class="option {% if answer.question.correct_answer == 'A' %}correct{% endif %} {% if answer.selected_answer == 'A' %}selected{% endif %}">
@@ -389,7 +887,7 @@
     </div>
     
     <div style="text-align: center; margin-top: 30px;">
-        <a href="{% url 'student_dashboard' %}" class="btn-primary">🏠 Back to Dashboard</a>
+        <a style="font-size: 15px;" href="{% url 'student_dashboard' %}" class="btn-primary">🏠 Back to Dashboard</a>
     </div>
 </div>
 {% endblock %}
@@ -401,64 +899,126 @@
 function toggleAnswers() {
     const section = document.getElementById('answersSection');
     const btnText = document.getElementById('btnText');
+    const arrow = document.querySelector('.arrow');
     
     if (section.classList.contains('active')) {
         section.classList.remove('active');
-        btnText.innerHTML = '📝 View Answers';
+        btnText.innerHTML = '📝 View Detailed Answers';
+        arrow.innerHTML = '⬇️';
+        arrow.style.transform = 'rotate(0deg)';
     } else {
         section.classList.add('active');
-        btnText.innerHTML = '✖ Hide Answers';
-        // Scroll to answers section
+        btnText.innerHTML = '✖ Hide Detailed Answers';
+        arrow.innerHTML = '⬆️';
+        arrow.style.transform = 'rotate(180deg)';
+        // Scroll to answers section with smooth animation
         setTimeout(() => {
             section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        }, 300);
     }
 }
 
-// Create pie chart
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('scoreChart').getContext('2d');
-    const correctCount = {{ correct_count }};
-    const wrongCount = {{ wrong_count }};
-    const unansweredCount = {{ unanswered_count }};
+// Create animated background particles
+function createParticles() {
+    const container = document.getElementById('particlesBg');
+    const particleCount = 30;
+    const shapes = ['circle', 'square'];
     
-    new Chart(ctx, {
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        
+        particle.className = `particle ${shape}`;
+        
+        // Random size
+        const size = Math.random() * 40 + 10;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        
+        // Random position
+        particle.style.left = Math.random() * 100 + '%';
+        
+        // Random animation
+        particle.style.animationDuration = (Math.random() * 20 + 10) + 's';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        
+        // Random color with transparency
+        const colors = ['rgba(255, 255, 255, 0.3)', 'rgba(102, 126, 234, 0.2)', 'rgba(118, 75, 162, 0.2)'];
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        
+        container.appendChild(particle);
+    }
+}
+
+// Create enhanced pie chart
+let chartInstance = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Get chart data from Django template
+    var correct = {{ correct_count }};
+    var wrong = {{ wrong_count }};
+    var unanswered = {{ unanswered_count }};
+    
+    // Validate data
+    if (isNaN(correct) || isNaN(wrong) || isNaN(unanswered)) {
+        console.log('Invalid chart data');
+        return;
+    }
+    
+    // Get canvas context
+    var ctx = document.getElementById('scoreChart').getContext('2d');
+    
+    // Enhanced chart with animations and styling
+    chartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: ['Correct', 'Wrong', 'Unanswered'],
             datasets: [{
-                data: [correctCount, wrongCount, unansweredCount],
+                data: [correct, wrong, unanswered],
                 backgroundColor: [
-                    '#38a169',
-                    '#e53e3e',
-                    '#718096'
+                    'rgba(76, 175, 80, 0.9)',    // Green - Correct
+                    'rgba(244, 67, 54, 0.9)',     // Red - Wrong
+                    'rgba(158, 158, 158, 0.9)'    // Gray - Unanswered
                 ],
-                borderWidth: 0,
-                hoverOffset: 10
+                borderColor: [
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 3,
+                hoverOffset: 15,
+                hoverBorderWidth: 4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
             plugins: {
                 legend: {
                     display: false
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#2d3748',
+                    bodyColor: '#4a5568',
+                    borderColor: 'rgba(0, 0, 0, 0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 10,
+                    displayColors: true,
+                    padding: 15,
                     titleFont: {
-                        size: 14,
+                        size: 16,
                         weight: 'bold'
                     },
                     bodyFont: {
-                        size: 13
+                        size: 14
                     },
                     callbacks: {
                         label: function(context) {
-                            const total = correctCount + wrongCount + unansweredCount;
+                            const total = correct + wrong + unanswered;
                             const percentage = ((context.parsed / total) * 100).toFixed(1);
-                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            return `${context.label}: ${context.parsed} (${percentage}%)`;
                         }
                     }
                 }
@@ -466,11 +1026,52 @@ document.addEventListener('DOMContentLoaded', function() {
             animation: {
                 animateRotate: true,
                 animateScale: true,
-                duration: 1500,
-                easing: 'easeInOutQuart'
+                duration: 2000,
+                easing: 'easeOutQuart'
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true,
+                animationDuration: 300
             }
         }
     });
 });
+
+// Function to highlight chart segments when legend items are clicked
+function highlightChartSegment(segmentIndex) {
+    if (chartInstance) {
+        // Reset all segments
+        chartInstance.data.datasets[0].backgroundColor = [
+            'rgba(76, 175, 80, 0.9)',
+            'rgba(244, 67, 54, 0.9)',
+            'rgba(158, 158, 158, 0.9)'
+        ];
+        
+        // Highlight the selected segment
+        const colors = [
+            'rgba(76, 175, 80, 1)',
+            'rgba(244, 67, 54, 1)',
+            'rgba(158, 158, 158, 1)'
+        ];
+        
+        chartInstance.data.datasets[0].backgroundColor[segmentIndex] = colors[segmentIndex];
+        chartInstance.update();
+        
+        // Add pulse effect to legend item
+        const legendItems = document.querySelectorAll('.legend-item');
+        legendItems.forEach((item, index) => {
+            if (index === segmentIndex) {
+                item.style.transform = 'scale(1.1)';
+                item.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.3)';
+                setTimeout(() => {
+                    item.style.transform = '';
+                    item.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+                }, 500);
+            }
+        });
+    }
+}
+
 </script>
 {% endblock %}

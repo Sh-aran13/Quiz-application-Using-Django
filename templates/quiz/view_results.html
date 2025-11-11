@@ -4,7 +4,7 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
     
     * {
         font-family: 'Inter', sans-serif;
@@ -15,6 +15,10 @@
         min-height: 100vh;
         position: relative;
         overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Playfair Display', serif;
     }
     
     /* Animated background with particles */
@@ -491,16 +495,16 @@
 <!-- Animated particles background -->
 <div class="particles-bg" id="particlesBg"></div>
 
-<h2 style="margin-bottom: 40px;">🏆 Quiz Results Dashboard</h2>
+<h2 style="margin-bottom: 40px;font-size: 30px;">🏆 Quiz Results Dashboard</h2>
 
 <div class="card">
     <form method="get">
         <div class="form-group">
-            <label>📋 Select Quiz:</label>
+            <label style="font-size: large;">📋 Select Quiz:</label>
             <select name="quiz_id" onchange="this.form.submit()">
-                <option value="">-- Select a Quiz --</option>
+                <option style="font-size: medium;font-family: cursive;" value="">-- Select a Quiz --</option>
                 {% for quiz in quizzes %}
-                <option value="{{ quiz.id }}" {% if selected_quiz and selected_quiz.id == quiz.id %}selected{% endif %}>
+                <option style="font-size: 15px;font-family: cursive;" value="{{ quiz.id }}" {% if selected_quiz and selected_quiz.id == quiz.id %}selected{% endif %}>
                     {{ quiz.title }}
                 </option>
                 {% endfor %}
@@ -512,12 +516,12 @@
 {% if selected_quiz %}
 <div class="card">
     <div class="results-header">
-        <h3><br>{{ selected_quiz.title }}</h3>
+        <h3 style="font-size: 25px;"><br>{{ selected_quiz.title }}</h3>
         <div class="download-buttons">
-            <a href="{% url 'export_results_excel' selected_quiz.id %}" class="btn btn-success">
+            <a style="font-size: 15px;" href="{% url 'export_results_excel' selected_quiz.id %}" class="btn btn-success">
                 📊 Download Excel
             </a>
-            <a href="{% url 'export_results_pdf' selected_quiz.id %}" class="btn btn-danger">
+            <a style="font-size: 15px;" href="{% url 'export_results_pdf' selected_quiz.id %}" class="btn btn-danger">
                 📄 Download PDF
             </a>
         </div>
@@ -527,31 +531,31 @@
     <table>
         <thead>
             <tr>
-                <th>S.No</th>
-                <th>Student Name</th>
-                <th>Roll Number</th>
-                <th>Email</th>
-                <th>Score</th>
-                <th>Total Marks</th>
-                <th>Percentage</th>
-                <th>Completed At</th>
+                <th style="font-size: 12px;">S.No</th>
+                <th style="font-size: 12px;">Student Name</th>
+                <th style="font-size: 12px;">Roll Number</th>
+                <th style="font-size: 12px;">Email</th>
+                <th style="font-size: 12px;">Score</th>
+                <th style="font-size: 12px;">Total Marks</th>
+                <th style="font-size: 12px;">Percentage</th>
+                <th style="font-size: 12px;">Completed At</th>
             </tr>
         </thead>
         <tbody>
             {% for attempt in attempts %}
             <tr>
-                <td>{{ forloop.counter }}</td>
-                <td><strong>{{ attempt.student.username }}</strong></td>
-                <td>{{ attempt.student.roll_number|default:"N/A" }}</td>
-                <td>{{ attempt.student.email }}</td>
-                <td><strong>{{ attempt.score }}</strong></td>
-                <td>{{ attempt.total_marks }}</td>
-                <td>
+                <td style="font-size: 13px;">{{ forloop.counter }}</td>
+                <td style="font-size: 13px;"><strong>{{ attempt.student.username }}</strong></td>
+                <td style="font-size: 13px;">{{ attempt.student.roll_number|default:"N/A" }}</td>
+                <td style="font-size: 13px;">{{ attempt.student.email }}</td>
+                <td style="font-size: 13px;"><strong>{{ attempt.score }}</strong></td>
+                <td style="font-size: 13px;">{{ attempt.total_marks }}</td>
+                <td style="font-size: 13px;">
                     <span class="percentage-badge {% if attempt.percentage >= 75 %}badge-excellent{% elif attempt.percentage >= 50 %}badge-good{% else %}badge-poor{% endif %}">
                         {{ attempt.percentage }}%
                     </span>
                 </td>
-                <td>{{ attempt.completed_at|date:"M d, Y H:i" }}</td>
+                <td style="font-size: 13px;">{{ attempt.completed_at|date:"M d, Y H:i" }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -559,7 +563,7 @@
     {% else %}
     <div class="empty-state">
         <div class="empty-state-icon">📋</div>
-        <p>No attempts yet for this quiz.</p>
+        <p style="font-size: large;">No attempts yet for this quiz.</p>
     </div>
     {% endif %}
 </div>

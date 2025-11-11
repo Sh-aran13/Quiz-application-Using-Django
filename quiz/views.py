@@ -65,11 +65,11 @@ def login_view(request):
         return redirect('dashboard')
     
     if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            
+        # Get username and password from the POST data
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        if username and password:
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
@@ -79,8 +79,6 @@ def login_view(request):
                 messages.error(request, 'Login failed. Invalid username or password. Please try again.')
         else:
             messages.error(request, 'Login failed. Please fill in all required fields.')
-    else:
-        form = LoginForm()
     
     return render(request, 'quiz/auth.html', {'show_register': False})
 
@@ -89,6 +87,8 @@ def login_view(request):
 def logout_view(request):
     username = request.user.username
     logout(request)
+    # Add a success message for logout
+    messages.success(request, f'Goodbye, {username}! You have been successfully logged out.')
     return redirect('login')
 
 
@@ -360,52 +360,121 @@ def export_results_excel(request, quiz_id):
         is_completed=True
     ).select_related('student').order_by('-score')
     
-    # Create workbook
+    # Create workbook with enhanced styling
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Quiz Results"
     
-    # Header style
-    header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
-    header_font = Font(bold=True, color="FFFFFF")
+    # Enhanced styling
+    from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
     
-    # Add title
+    # Color palette
+    header_fill = PatternFill(start_color="2563EB", end_color="2563EB", fill_type="solid")  # Blue
+    header_font = Font(bold=True, color="FFFFFF", size=12)
+    alternate_fill1 = PatternFill(start_color="F8FAFC", end_color="F8FAFC", fill_type="solid")  # Light gray
+    alternate_fill2 = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")  # White
+    border = Border(
+        left=Side(style='thin', color='D1D5DB'),
+        right=Side(style='thin', color='D1D5DB'),
+        top=Side(style='thin', color='D1D5DB'),
+        bottom=Side(style='thin', color='D1D5DB')
+    )
+    
+    # Add title with enhanced styling
     ws.merge_cells('A1:F1')
-    ws['A1'] = f'Quiz Results: {quiz.title}'
-    ws['A1'].font = Font(bold=True, size=14)
-    ws['A1'].alignment = Alignment(horizontal='center')
+    title_cell = ws['A1']
+    title_cell.value = f'Quiz Results: {quiz.title}'
+    title_cell.font = Font(bold=True, size=16, color="1E40AF")
+    title_cell.alignment = Alignment(horizontal='center', vertical='center')
+    title_cell.fill = PatternFill(start_color="DBEAFE", end_color="DBEAFE", fill_type="solid")
     
-    # Add headers
+    # Add subtitle with date
+    from datetime import datetime
+    ws.merge_cells('A2:F2')
+    subtitle_cell = ws['A2']
+    subtitle_cell.value = f'Generated on: {datetime.now().strftime("%B %d, %Y at %I:%M %p")}'
+    subtitle_cell.font = Font(italic=True, size=10, color="6B7280")
+    subtitle_cell.alignment = Alignment(horizontal='center', vertical='center')
+    
+    # Add headers with enhanced styling
     headers = ['S.No', 'Student Name', 'Roll Number', 'Score', 'Total Marks', 'Percentage']
     for col_num, header in enumerate(headers, 1):
-        cell = ws.cell(row=3, column=col_num)
+        cell = ws.cell(row=4, column=col_num)
         cell.value = header
         cell.fill = header_fill
         cell.font = header_font
-        cell.alignment = Alignment(horizontal='center')
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        cell.border = border
     
-    # Add data
+    # Add data with alternating row colors and enhanced styling
     for idx, attempt in enumerate(attempts, 1):
-        ws.cell(row=idx+3, column=1, value=idx)
-        ws.cell(row=idx+3, column=2, value=attempt.student.username)
-        ws.cell(row=idx+3, column=3, value=attempt.student.roll_number or 'N/A')
-        ws.cell(row=idx+3, column=4, value=attempt.score)
-        ws.cell(row=idx+3, column=5, value=attempt.total_marks)
-        ws.cell(row=idx+3, column=6, value=f"{attempt.percentage()}%")
+        row_num = idx + 4
+        # Alternate row colors
+        row_fill = alternate_fill1 if idx % 2 == 0 else alternate_fill2
+        
+        # S.No
+        cell = ws.cell(row=row_num, column=1, value=idx)
+        cell.fill = row_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = border
+        
+        # Student Name
+        cell = ws.cell(row=row_num, column=2, value=attempt.student.username)
+        cell.fill = row_fill
+        cell.alignment = Alignment(horizontal='left')
+        cell.border = border
+        
+        # Roll Number
+        cell = ws.cell(row=row_num, column=3, value=attempt.student.roll_number or 'N/A')
+        cell.fill = row_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = border
+        
+        # Score
+        cell = ws.cell(row=row_num, column=4, value=attempt.score)
+        cell.fill = row_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = border
+        # Highlight high scores
+        if attempt.percentage() >= 75:
+            cell.font = Font(color="16A34A", bold=True)  # Green for excellent
+        elif attempt.percentage() >= 50:
+            cell.font = Font(color="CA8A04")  # Yellow for good
+        else:
+            cell.font = Font(color="DC2626")  # Red for poor
+        
+        # Total Marks
+        cell = ws.cell(row=row_num, column=5, value=attempt.total_marks)
+        cell.fill = row_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = border
+        
+        # Percentage with color coding
+        cell = ws.cell(row=row_num, column=6, value=f"{attempt.percentage()}%")
+        cell.fill = row_fill
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = border
+        # Color code percentages
+        if attempt.percentage() >= 75:
+            cell.font = Font(color="16A34A", bold=True)  # Green for excellent
+        elif attempt.percentage() >= 50:
+            cell.font = Font(color="CA8A04")  # Yellow for good
+        else:
+            cell.font = Font(color="DC2626")  # Red for poor
     
-    # Adjust column widths
-    for col_idx in range(1, 7):  # 6 columns (A to F)
-        max_length = 0
+    # Adjust column widths for better readability
+    column_widths = {
+        1: 8,   # S.No
+        2: 25,  # Student Name
+        3: 15,  # Roll Number
+        4: 10,  # Score
+        5: 12,  # Total Marks
+        6: 12   # Percentage
+    }
+    
+    for col_idx, width in column_widths.items():
         column_letter = openpyxl.utils.get_column_letter(col_idx)
-        for row in ws.iter_rows(min_col=col_idx, max_col=col_idx):
-            for cell in row:
-                try:
-                    if cell.value and len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-        adjusted_width = (max_length + 2)
-        ws.column_dimensions[column_letter].width = adjusted_width
+        ws.column_dimensions[column_letter].width = width
     
     # Create response
     response = HttpResponse(
@@ -429,62 +498,158 @@ def export_results_pdf(request, quiz_id):
         return redirect('student_dashboard')
     
     quiz = get_object_or_404(Quiz, id=quiz_id)
+    # Order by roll number ascending
     attempts = QuizAttempt.objects.filter(
         quiz=quiz,
         is_completed=True
-    ).select_related('student').order_by('-score')
+    ).select_related('student').order_by('student__roll_number')
     
-    # Create PDF
+    # Create PDF with enhanced styling
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=50, bottomMargin=50)
     elements = []
     
-    # Styles
-    styles = getSampleStyleSheet()
+    # Enhanced styles
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.lib.colors import HexColor
+    from reportlab.platypus import Spacer, Table, TableStyle
+    from reportlab.lib.units import inch
+    
+    # Title style
     title_style = ParagraphStyle(
         'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        textColor=colors.HexColor('#366092'),
-        spaceAfter=30,
-        alignment=1  # Center
+        fontSize=24,
+        textColor=HexColor('#1E3A8A'),
+        spaceAfter=25,
+        alignment=1,  # Center
+        fontName='Helvetica-Bold'
     )
     
-    # Add title
+    # Subtitle style
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        fontSize=14,
+        textColor=HexColor('#4B5563'),
+        spaceAfter=35,
+        alignment=1,  # Center
+        fontName='Helvetica'
+    )
+    
+    # Header style
+    header_style = ParagraphStyle(
+        'Header',
+        fontSize=16,
+        textColor=HexColor('#FFFFFF'),
+        spaceAfter=20,
+        alignment=1,  # Center
+        fontName='Helvetica-Bold'
+    )
+    
+    # Add title and subtitle
+    from datetime import datetime
+    from reportlab.platypus import Paragraph
+    
     title = Paragraph(f"Quiz Results: {quiz.title}", title_style)
+    subtitle = Paragraph(f"Generated on: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}", subtitle_style)
+    
     elements.append(title)
-    elements.append(Spacer(1, 12))
+    elements.append(subtitle)
+    elements.append(Spacer(1, 30))
     
-    # Create table data
-    data = [['S.No', 'Student Name', 'Roll Number', 'Score', 'Total', 'Percentage']]
+    # Create table data with only roll number, email, and score
+    data = [['S.No', 'Roll Number', 'Email', 'Score']]
     
+    # Add data rows - show only clean score value
     for idx, attempt in enumerate(attempts, 1):
         data.append([
             str(idx),
-            attempt.student.username,
             attempt.student.roll_number or 'N/A',
-            str(attempt.score),
-            str(attempt.total_marks),
-            f"{attempt.percentage()}%"
+            attempt.student.email,
+            str(attempt.score)  # Show only the numeric score value
         ])
     
-    # Create table
-    table = Table(data)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 10),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
-    ]))
+    # Create table with enhanced styling
+    table = Table(data, colWidths=[0.8*inch, 1.8*inch, 2.5*inch, 1.2*inch])
     
+    # Table styling with attractive design
+    table_style = TableStyle([
+        # Header styling with gradient-like effect
+        ('BACKGROUND', (0, 0), (-1, 0), HexColor('#1E40AF')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), HexColor('#FFFFFF')),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 15),
+        ('TOPPADDING', (0, 0), (-1, 0), 15),
+        
+        # Data rows styling
+        ('ALIGN', (0, 1), (0, -1), 'CENTER'),    # S.No
+        ('ALIGN', (1, 1), (1, -1), 'CENTER'),    # Roll Number
+        ('ALIGN', (2, 1), (2, -1), 'LEFT'),      # Email
+        ('ALIGN', (3, 1), (3, -1), 'CENTER'),    # Score
+        
+        # Font styling
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (2, -1), 12),
+        
+        # Grid and borders with attractive styling
+        ('GRID', (0, 0), (-1, -1), 2, HexColor('#1E40AF')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        
+        # Alternate row colors for better readability
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [HexColor('#EFF6FF'), HexColor('#FFFFFF')]),
+        
+        # Add some spacing
+        ('TOPPADDING', (0, 1), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 10),
+    ])
+    
+    table.setStyle(table_style)
     elements.append(table)
+    
+    # Add summary statistics if there are attempts
+    if attempts:
+        elements.append(Spacer(1, 40))
+        
+        # Summary title
+        summary_title = Paragraph("Performance Summary", header_style)
+        elements.append(summary_title)
+        elements.append(Spacer(1, 20))
+        
+        # Calculate statistics
+        total_students = len(attempts)
+        avg_score = sum([attempt.score for attempt in attempts]) / total_students if total_students > 0 else 0
+        avg_percentage = sum([attempt.percentage() for attempt in attempts]) / total_students if total_students > 0 else 0
+        highest_score = max([attempt.score for attempt in attempts]) if attempts else 0
+        lowest_score = min([attempt.score for attempt in attempts]) if attempts else 0
+        
+        # Summary data with attractive styling
+        summary_data = [
+            ['Metric', 'Value'],
+            ['Total Students', str(total_students)],
+            ['Average Score', f"{avg_score:.2f}"],
+            ['Average Percentage', f"{avg_percentage:.2f}%"],
+            ['Highest Score', str(highest_score)],
+            ['Lowest Score', str(lowest_score)]
+        ]
+        
+        # Create summary table
+        summary_table = Table(summary_data, colWidths=[2.5*inch, 2.5*inch])
+        summary_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('GRID', (0, 0), (-1, -1), 2, HexColor('#1E40AF')),
+            ('BACKGROUND', (0, 0), (-1, 0), HexColor('#1E40AF')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), HexColor('#FFFFFF')),
+            ('BACKGROUND', (0, 1), (-1, -1), HexColor('#EFF6FF')),
+            ('TOPPADDING', (0, 0), (-1, -1), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        
+        elements.append(summary_table)
     
     # Build PDF
     doc.build(elements)

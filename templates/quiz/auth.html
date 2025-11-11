@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Quiz Application{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
     <style>
         *, *::after, *::before {
             margin: 0;
@@ -17,7 +17,7 @@
             height: 100%;
             font-size: 65.2%;
             box-sizing: border-box;
-            font-family: Montserrat, sans-serif;
+            font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             font-weight: 400;
         }
@@ -35,6 +35,10 @@
             perspective: 1500px;
             position: relative;
             overflow: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
         }
         
         @keyframes gradientShift {
@@ -108,31 +112,148 @@
             text-align: center;
         }
 
-        .messages {
+        /* Toast Notification Styles */
+        .toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 9999;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .toast {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 25px;
+            min-width: 320px;
             max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: toastSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-left: 5px solid;
         }
-
-        .alert {
-            padding: 12px 20px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-size: 1.4em;
+        
+        @keyframes toastSlideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
-
-        .alert-success {
-            background: #c6f6d5;
+        
+        .toast.removing {
+            animation: toastSlideOut 0.4s ease-in forwards;
+        }
+        
+        @keyframes toastSlideOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        .toast-icon {
+            font-size: 2rem;
+            animation: iconPulseToast 1.5s infinite;
+        }
+        
+        @keyframes iconPulseToast {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            font-family: 'Pacifico', cursive;
+        }
+        
+        .toast-message {
+            font-size: 1rem;
+            color: #718096;
+            line-height: 1.4;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            transition: all 0.3s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .toast-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            transform: rotate(90deg);
+        }
+        
+        .toast.success {
+            border-left-color: #38a169;
+        }
+        
+        .toast.success .toast-icon {
+            color: #38a169;
+        }
+        
+        .toast.success .toast-title {
             color: #22543d;
-            border-left: 4px solid #38a169;
         }
-
-        .alert-error {
-            background: #fed7d7;
+        
+        .toast.error {
+            border-left-color: #e53e3e;
+        }
+        
+        .toast.error .toast-icon {
+            color: #e53e3e;
+        }
+        
+        .toast.error .toast-title {
             color: #742a2a;
-            border-left: 4px solid #e53e3e;
+        }
+        
+        /* Progress bar */
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 0 0 15px 15px;
+            animation: progressBar 2s linear forwards;
+        }
+        
+        @keyframes progressBar {
+            from {
+                width: 100%;
+            }
+            to {
+                width: 0%;
+            }
         }
 
         form input {
@@ -418,6 +539,10 @@
     <!-- Animated Background -->
     <div class="bg-animation" id="bgAnimation"></div>
     
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Messages Container -->
     {% if messages %}
     <div class="messages">
         {% for message in messages %}
@@ -556,6 +681,107 @@
                 branch.required = false;
             }
         }
+        
+        // Toast Notification System
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? '✅' : '❌';
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="closeToast(this)">×</button>
+                <div class="toast-progress"></div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after 2 seconds
+            setTimeout(() => {
+                removeToast(toast);
+            }, 2000);
+        }
+        
+        function closeToast(btn) {
+            const toast = btn.closest('.toast');
+            removeToast(toast);
+        }
+        
+        function removeToast(toast) {
+            if (toast && !toast.classList.contains('removing')) {
+                toast.classList.add('removing');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 400);
+            }
+        }
+        
+        // Show Django messages as toasts
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.messages .alert');
+            messages.forEach((msg, index) => {
+                setTimeout(() => {
+                    const type = msg.classList.contains('alert-success') ? 'success' : 'error';
+                    const text = msg.textContent.trim();
+                    
+                    // Parse title and message
+                    let title = type === 'success' ? 'Success!' : 'Error!';
+                    let message = text;
+                    
+                    // Check for specific messages and customize titles
+                    if (text.toLowerCase().includes('registration successful')) {
+                        title = '🎉 Registration Successful';
+                    } else if (text.toLowerCase().includes('registration failed')) {
+                        title = '❌ Registration Failed';
+                    } else if (text.toLowerCase().includes('login successful') || text.toLowerCase().includes('welcome back')) {
+                        title = '👋 Login Successful';
+                        // For successful login, show toast and then redirect
+                        if (window.location.pathname === '/login/') {
+                            showToast(type, title, message);
+                            setTimeout(() => {
+                                window.location.href = '/dashboard/';
+                            }, 1500);
+                            return;
+                        }
+                    } else if (text.toLowerCase().includes('login failed')) {
+                        title = '🔒 Login Failed';
+                    } else if (text.toLowerCase().includes('logged out') || text.toLowerCase().includes('goodbye')) {
+                        title = '👋 Logout Successful';
+                        // For logout, show toast and then redirect
+                        if (window.location.pathname === '/login/') {
+                            showToast(type, title, message);
+                            return;
+                        }
+                    } else if (text.includes('activated')) {
+                        title = '✅ Quiz Activated';
+                    } else if (text.includes('deactivated')) {
+                        title = '⚠️ Quiz Deactivated';
+                    } else if (text.toLowerCase().includes('quiz created')) {
+                        title = '✨ Quiz Created';
+                    } else if (text.toLowerCase().includes('question added')) {
+                        title = '📝 Question Added';
+                    } else if (text.toLowerCase().includes('question deleted')) {
+                        title = '🗑️ Question Deleted';
+                    }
+                    
+                    showToast(type, title, message);
+                }, index * 200);
+            });
+            
+            // Hide original messages
+            const messagesContainer = document.querySelector('.messages');
+            if (messagesContainer) {
+                messagesContainer.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

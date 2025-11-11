@@ -4,10 +4,10 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
     
     * {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
     
     body {
@@ -15,6 +15,10 @@
         min-height: 100vh;
         position: relative;
         overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Playfair Display', serif;
     }
     
     /* Animated background particles */
@@ -559,77 +563,77 @@
     </div>
 </div>
 
-<h2 style="margin-bottom: 40px;color: black;">🚀 Admin Command Center</h2>
+<h2 style="margin-bottom: 40px;color: black;font-size: 30px;">🚀 Admin Command Center</h2>
 
 <!-- Stats Cards -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-icon">📊</div>
-        <h3>Total Quizzes</h3>
+        <h3 style="font-size: 15px;">Total Quizzes</h3>
         <div class="stat-number" id="quizCount">0</div>
     </div>
     
     <div class="stat-card">
         <div class="stat-icon">✍️</div>
-        <h3>Total Attempts</h3>
+        <h3 style="font-size: 15px;">Total Attempts</h3>
         <div class="stat-number" id="attemptCount">0</div>
     </div>
     
     <div class="stat-card">
         <div class="stat-icon">⚡</div>
-        <h3>Active Quizzes</h3>
+        <h3 style="font-size: 15px;">Active Quizzes</h3>
         <div class="stat-number" id="activeCount">0</div>
     </div>
 </div>
 
 <!-- Action Buttons -->
 <div class="action-buttons">
-    <a href="{% url 'add_quiz' %}" class="btn btn-success">+ Create New Quiz</a>
-    <a href="{% url 'view_results' %}" class="btn btn-primary">📈 View Results</a>
+    <a style="font-size: 15px;" href="{% url 'add_quiz' %}" class="btn btn-success">+ Create New Quiz</a>
+    <a style="font-size: 15px;" href="{% url 'view_results' %}" class="btn btn-primary">📈 View Results</a>
 </div>
 
 <!-- Quiz Table -->
 <div class="card">
-    <h3>📚 All Quizzes</h3>
+    <h3 style="font-size: 25px;">📚 All Quizzes</h3>
     
     {% if quizzes %}
     <table>
         <thead>
             <tr>
-                <th>Title</th>
-                <th>Created By</th>
-                <th>Description</th>
-                <th>Time Limit</th>
-                <th>Status</th>
-                <th>Attempts</th>
-                <th>Actions</th>
+                <th style="font-size: 13px;">Title</th>
+                <th style="font-size: 13px;">Created By</th>
+                <th style="font-size: 13px;">Description</th>
+                <th style="font-size: 13px;">Time Limit</th>
+                <th style="font-size: 13px;">Status</th>
+                <th style="font-size: 13px;">Attempts</th>
+                <th style="font-size: 13px;">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for quiz in quizzes %}
             <tr>
-                <td><strong>{{ quiz.title }}</strong></td>
-                <td>
+                <td style="font-size: 13px;"><strong>{{ quiz.title }}</strong></td>
+                <td style="font-size: 13px;">
                     {% if quiz.created_by == request.user %}
                         Me
                     {% else %}
                         {{ quiz.created_by.username }} ({{ quiz.created_by.role }})
                     {% endif %}
                 </td>
-                <td>{{ quiz.description|truncatewords:10 }}</td>
-                <td>{{ quiz.time_limit }} mins</td>
-                <td>
+                <td style="font-size: 13px;">{{ quiz.description|truncatewords:10 }}</td>
+                <td style="font-size: 13px;">{{ quiz.time_limit }} mins</td>
+                <td style="font-size: 13px;">
                     {% if quiz.is_active %}
                     <span class="status-active">Active</span>
                     {% else %}
                     <span class="status-inactive">Inactive</span>
                     {% endif %}
                 </td>
-                <td><strong>{{ quiz.attempt_count }}</strong></td>
-                <td>
-                    <a href="{% url 'add_questions' quiz.id %}" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem; margin-right: 5px;">Manage Questions</a>
+                <td style="font-size: 13px;"><strong>{{ quiz.attempt_count }}</strong></td>
+                <td style="font-size: 13px;">
+                    <a href="{% url 'add_questions' quiz.id %}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 1rem; margin-right: 5px;">Manage Questions</a>
                     {% if quiz.is_active %}
-                    <a href="#" class="btn btn-danger" style="padding: 8px 16px; font-size: 0.85rem;" onclick="showToggleModal(event, '{% url 'toggle_quiz_status' quiz.id %}', 'deactivate', '{{ quiz.title }}')">Deactivate</a>
+                    <a href="#" class="btn btn-danger" style="padding: 10px 20px; font-size: 1rem;" onclick="showToggleModal(event, '{% url 'toggle_quiz_status' quiz.id %}', 'deactivate', '{{ quiz.title }}')">Deactivate</a>
                     {% else %}
                     <a href="#" class="btn btn-success" style="padding: 8px 16px; font-size: 0.85rem;" onclick="showToggleModal(event, '{% url 'toggle_quiz_status' quiz.id %}', 'activate', '{{ quiz.title }}')">Activate</a>
                     {% endif %}

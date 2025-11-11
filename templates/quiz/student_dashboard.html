@@ -4,10 +4,10 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
     
     * {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
     
     body {
@@ -112,9 +112,10 @@
         animation: slideInDown 0.8s ease-out;
         color: rgb(15, 15, 15) !important;
         text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.3);
-        font-weight: 700;
-        letter-spacing: 1px;
-        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        font-size: 2.8rem;
+        font-family: 'Playfair Display', serif;
     }
     
     @keyframes slideInDown {
@@ -206,11 +207,12 @@
     
     .card h3 {
         color: #000000;
-        font-size: 1.8rem;
+        font-size: 2rem;
         margin-bottom: 25px;
         font-weight: 700;
         position: relative;
         display: inline-block;
+        font-family: 'Playfair Display', serif;
     }
     
     .card h3::after {
@@ -309,9 +311,11 @@
     
     .quiz-card h3 {
         color: white !important;
-        font-size: 1.5rem;
+        font-size: 1.7rem;
         margin-bottom: 15px;
         text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        font-weight: 700;
+        font-family: 'Playfair Display', serif;
     }
     
     .quiz-card h3::after {
@@ -322,6 +326,8 @@
         margin-bottom: 12px;
         line-height: 1.6;
         color: rgba(255, 255, 255, 0.95);
+        font-family: 'Inter', sans-serif;
+        font-weight: 400;
     }
     
     .quiz-icon {
@@ -340,7 +346,7 @@
     .btn {
         position: relative;
         padding: 12px 30px;
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 600;
         border: none;
         border-radius: 50px;
@@ -352,6 +358,7 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         display: inline-block;
         text-decoration: none;
+        font-family: 'Inter', sans-serif;
     }
     
     .btn::before {
@@ -396,21 +403,35 @@
         border-collapse: separate;
         border-spacing: 0;
         overflow: hidden;
-        border-radius: 15px;
+        border-radius: 13px;
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
     }
     
     thead {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     
-    th {
-        padding: 18px 15px;
+    th, td {
+        padding: 15px;
         text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         font-weight: 600;
+        font-family: 'Inter', sans-serif;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
+    
+    td {
+        font-weight: 400;
+        color: #4a5568;
+        font-family: 'Inter', sans-serif;
     }
     
     tbody tr {
@@ -442,13 +463,6 @@
         background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
         transform: scale(1.02);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    td {
-        padding: 18px 15px;
-        border-bottom: 1px solid #eee;
-        color: #4a5568;
-        font-size: 0.95rem;
     }
     
     /* Percentage badges with animation */
@@ -546,10 +560,10 @@
 <!-- Animated background particles -->
 <div class="particles-bg" id="particlesBg"></div>
 
-<h2 style="margin-bottom: 30px;color: #2d3748;">🎓 Student Dashboard</h2>
+<h2 style="margin-bottom: 30px;color: #2d3748;font-size: 40px;">🎓 Student Dashboard</h2>
 
 <div class="card">
-    <h3>📚 Available Quizzes</h3>
+    <h3 style="font-size: 25px;">📚 Available Quizzes</h3>
     
     {% if available_quizzes %}
     <div class="grid">
@@ -575,7 +589,7 @@
 </div>
 
 <div class="card" style="margin-top: 30px;">
-    <h3>📊 Your Quiz History</h3>
+    <h3 style="font-size: 25px;">📊 Your Quiz History</h3>
     
     {% if attempted_quizzes %}
     <table>

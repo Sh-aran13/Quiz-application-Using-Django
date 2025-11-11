@@ -4,7 +4,7 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
     
     * {
         font-family: 'Inter', sans-serif;
@@ -15,6 +15,10 @@
         min-height: 100vh;
         position: relative;
         overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Playfair Display', serif;
     }
     
     /* Animated background particles */
@@ -397,7 +401,7 @@
 </div>
 
 <div class="profile-container">
-    <h2 style="text-align: center; margin-bottom: 40px;color: #2d3748;">👤 User Profile</h2>
+    <h2 style="text-align: center; margin-bottom: 40px;color: #2d3748;font-size: 30px;">👤 User Profile</h2>
     
     <div class="card">
         <div class="avatar-container">
@@ -407,46 +411,46 @@
         </div>
         
         <div class="form-group">
-            <label>👤 Username:</label>
-            <input type="text" value="{{ user.username }}" readonly>
+            <label style="font-size: 15px;">👤 Username:</label>
+            <input style="font-size: 12px;" type="text" value="{{ user.username }}" readonly>
         </div>
         
         <div class="form-group">
-            <label>✉️ Email:</label>
-            <input type="email" value="{{ user.email }}" readonly>
+            <label style="font-size: 15px;">✉️ Email:</label>
+            <input style="font-size: 12px;" type="email" value="{{ user.email }}" readonly>
         </div>
         
         <div class="form-group">
-            <label>📱 Phone:</label>
-            <input type="text" value="{{ user.phone }}" readonly>
+            <label style="font-size: 15px;">📱 Phone:</label>
+            <input style="font-size: 12px;" type="text" value="{{ user.phone }}" readonly>
         </div>
         
         <div class="form-group">
-            <label>🎭 Role:</label>
+            <label style="font-size: 15px;">🎭 Role:</label>
             <div style="margin-top: 10px;">
-                <span class="role-badge">{{ user.get_role_display }}</span>
+                <span  class="role-badge">{{ user.get_role_display }}</span>
             </div>
         </div>
         
         {% if user.role == 'student' %}
         <div class="form-group">
-            <label>🎓 Roll Number:</label>
-            <input type="text" value="{{ user.roll_number }}" readonly>
+            <label style="font-size: 15px;">🎓 Roll Number:</label>
+            <input style="font-size: 12px;" type="text" value="{{ user.roll_number }}" readonly>
         </div>
         
         <div class="form-group">
-            <label>🏫 Branch:</label>
-            <input type="text" value="{{ user.branch }}" readonly>
+            <label style="font-size: 15px;">🏫 Branch:</label>
+            <input style="font-size: 12px;" type="text" value="{{ user.branch }}" readonly>
         </div>
         {% endif %}
         
         <div class="form-group">
-            <label>📅 Member Since:</label>
-            <input type="text" value="{{ user.date_joined|date:'F d, Y' }}" readonly>
+            <label style="font-size: 15px;">📅 Member Since:</label>
+            <input style="font-size: 12px;" type="text" value="{{ user.date_joined|date:'F d, Y' }}" readonly>
         </div>
         
         <div class="btn-container">
-            <a href="{% if user.role == 'admin' %}{% url 'admin_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="btn">← Back to Dashboard</a>
+            <a style="font-size: 13px;" href="{% if user.role == 'admin' %}{% url 'admin_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="btn">← Back to Dashboard</a>
         </div>
     </div>
 </div>
