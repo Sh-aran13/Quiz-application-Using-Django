@@ -19,5 +19,6 @@
     "reportUnannotatedClassAttribute": false,
     "reportIncompatibleMethodOverride": false,
     "reportImplicitOverride": false,
-    "reportIncompatibleVariableOverride": false
+    "reportIncompatibleVariableOverride": false,
+    "reportExpressionType": false
 }

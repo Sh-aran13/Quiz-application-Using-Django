@@ -724,54 +724,54 @@
     </div>
 </div>
 
-<h2 style="margin-bottom: 30px;color: #2d3748;text-align: center;">📝 Manage Questions: {{ quiz.title }}</h2>
+<h2 style="margin-bottom: 30px;color: #2d3748;text-align: center;font-size: 24px;">📝 Manage Questions: {{ quiz.title }}</h2>
 
 <div class="questions-section">
     <!-- Add Question Form -->
     <div class="add-question-section">
         <div class="card">
-            <h3 style="color: #2d3748;margin-bottom: 25px;position: relative;padding-left: 20px;"><br> New Question</h3>
+            <h3 style="color: #2d3748;margin-bottom: 25px;position: relative;padding-left: 20px;font-size: 23px;"><br> New Question</h3>
             
             <form method="post">
                 {% csrf_token %}
                 
                 <div class="form-group">
-                    <label>❓ Question Text:</label>
+                    <label style="font-size: 15px;">❓ Question Text:</label>
                     {{ form.question_text }}
                 </div>
                 
                 <div class="form-group">
-                    <label> Option A:</label>
+                    <label style="font-size: 15px;"> Option A:</label>
                     {{ form.option_a }}
                 </div>
                 
                 <div class="form-group">
-                    <label> Option B:</label>
+                    <label style="font-size: 15px;"> Option B:</label>
                     {{ form.option_b }}
                 </div>
                 
                 <div class="form-group">
-                    <label> Option C:</label>
+                    <label style="font-size: 15px;"> Option C:</label>
                     {{ form.option_c }}
                 </div>
                 
                 <div class="form-group">
-                    <label> Option D:</label>
+                    <label style="font-size: 15px;"> Option D:</label>
                     {{ form.option_d }}
                 </div>
                 
                 <div class="form-group">
-                    <label>✅ Correct Answer:</label>
+                    <label style="font-size: 15px;">✅ Correct Answer:</label>
                     {{ form.correct_answer }}
                 </div>
                 
                 <div class="form-group">
-                    <label>🎯 Marks:</label>
+                    <label style="font-size: 15px;">🎯 Marks:</label>
                     {{ form.marks }}
                 </div>
                 
                 <div class="form-group">
-                    <label>🔢 Order:</label>
+                    <label style="font-size: 15px;">🔢 Order:</label>
                     {{ form.order }}
                 </div>
                 
@@ -781,7 +781,7 @@
                 </div>
                 {% endif %}
                 
-                <button type="submit" class="btn btn-success">➕ Add Question</button>
+                <button type="submit" class="btn btn-success" style="font-size: 15px;">➕ Add Question</button>
             </form>
         </div>
     </div>
@@ -789,34 +789,34 @@
     <!-- Questions List -->
     <div class="questions-list-section">
         <div class="card">
-            <h3 style="color: #2d3748;margin-bottom: 25px;position: relative;padding-left: 20px;"><br>Question List ({{ questions.count }})</h3>
+            <h3 style="color: #2d3748;margin-bottom: 25px;position: relative;padding-left: 20px;font-size: 18px;"><br>Question List ({{ questions.count }})</h3>
             
             {% if questions %}
             <div class="questions-scroll">
                 {% for question in questions %}
                 <div class="question-card">
-                    <h4>📌 Q{{ forloop.counter }}: {{ question.question_text|truncatewords:15 }}</h4>
+                    <h4 style="font-size: 16px;">📌 Q{{ forloop.counter }}: {{ question.question_text|truncatewords:15 }}</h4>
                     <div class="options">
-                        <p><strong>A:</strong> {{ question.option_a }}</p>
-                        <p><strong>B:</strong> {{ question.option_b }}</p>
-                        <p><strong>C:</strong> {{ question.option_c }}</p>
-                        <p><strong>D:</strong> {{ question.option_d }}</p>
+                        <p style="font-size: 15px;"><strong>A:</strong> {{ question.option_a }}</p>
+                        <p style="font-size: 15px;"><strong>B:</strong> {{ question.option_b }}</p>
+                        <p style="font-size: 15px;"><strong>C:</strong> {{ question.option_c }}</p>
+                        <p style="font-size: 15px;"><strong>D:</strong> {{ question.option_d }}</p>
                     </div>
-                    <div class="meta">
-                        <strong>✅ Correct:</strong> Option {{ question.correct_answer }} | 
-                        <strong>🎯 Marks:</strong> {{ question.marks }}
+                    <div class="meta" style="font-size: 15px;">
+                        <strong style="font-size: 15px;">✅ Correct:</strong> Option {{ question.correct_answer }} | 
+                        <strong style="font-size: 15px;">🎯 Marks:</strong> {{ question.marks }}
                     </div>
-                    <div style="margin-top: 15px;">
-                        <a href="{% url 'edit_question' question.id %}" class="btn btn-primary" style="padding: 8px 20px; font-size: 0.85rem; margin-right: 10px;">✏️ Edit</a>
-                        <a href="#" class="btn btn-danger" style="padding: 8px 20px; font-size: 0.85rem;" onclick="showDeleteModal({{ question.id }}, '{{ question.question_text|truncatewords:5|escapejs }}')">🗑️ Delete</a>
+                    <div style="margin-top: 15px;font-size: 15px;">
+                        <a href="{% url 'edit_question' question.id %}" class="btn btn-primary" style="padding: 8px 20px; font-size: 0.85rem; margin-right: 10px;font-size: 15px;">✏️ Edit</a>
+                        <a href="#" class="btn btn-danger" style="padding: 8px 20px; font-size: 0.85rem;font-size: 15px;    " onclick="showDeleteModal({{ question.id }}, '{{ question.question_text|truncatewords:5|escapejs }}')">🗑️ Delete</a>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <div class="empty-state">
+            <div class="empty-state" style="font-size: 15px;">
                 <div class="empty-state-icon">📝</div>
-                <p>No questions added yet. Start creating questions!</p>
+                <p style="font-size: 15px;">No questions added yet. Start creating questions!</p>
             </div>
             {% endif %}
         </div>
@@ -824,7 +824,7 @@
 </div>
 
 <div class="back-button">
-    <a href="{% url 'admin_dashboard' %}" class="btn btn-primary">← Back to Dashboard</a>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-primary" style="font-size: 15px;">← Back to Dashboard</a>
 </div>
 {% endblock %}
 

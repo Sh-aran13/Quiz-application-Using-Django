@@ -631,13 +631,13 @@
                 </td>
                 <td style="font-size: 13px;"><strong>{{ quiz.attempt_count }}</strong></td>
                 <td style="font-size: 13px;">
-                    <a href="{% url 'add_questions' quiz.id %}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 1rem; margin-right: 5px;">Manage Questions</a>
+                    <a href="{% url 'add_questions' quiz.id %}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 15px; margin-right: 5px;">Manage Questions</a>
                     {% if quiz.is_active %}
-                    <a href="#" class="btn btn-danger" style="padding: 10px 20px; font-size: 1rem;" onclick="showToggleModal(event, '{% url 'toggle_quiz_status' quiz.id %}', 'deactivate', '{{ quiz.title }}')">Deactivate</a>
+                    <a href="#" class="btn btn-danger" style="padding: 10px 20px; font-size: 15px;" onclick="showToggleModal(event, '{% url 'toggle_quiz_status' quiz.id %}', 'deactivate', '{{ quiz.title }}')">Deactivate</a>
                     {% else %}
-                    <a href="#" class="btn btn-success" style="padding: 8px 16px; font-size: 0.85rem;" onclick="showToggleModal(event, '{% url 'toggle_quiz_status' quiz.id %}', 'activate', '{{ quiz.title }}')">Activate</a>
+                    <a href="#" class="btn btn-success" style="padding: 8px 16px; font-size: 15px;" onclick="showToggleModal(event, '{% url 'toggle_quiz_status' quiz.id %}', 'activate', '{{ quiz.title }}')">Activate</a>
                     {% endif %}
-                    <a href="#" class="btn btn-danger" style="padding: 8px 16px; font-size: 0.85rem; margin-left: 5px;" onclick="showDeleteModal(event, {{ quiz.id }}, '{{ quiz.title|escapejs }}')">Delete</a>
+                    <a href="#" class="btn btn-danger" style="padding: 8px 16px; font-size: 15px; margin-left: 5px;" onclick="showDeleteModal(event, {{ quiz.id }}, '{{ quiz.title|escapejs }}')">Delete</a>
                 </td>
             </tr>
             {% endfor %}

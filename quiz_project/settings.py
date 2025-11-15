@@ -12,6 +12,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import dj_database_url
 import os
 from pathlib import Path
+from decouple import config
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
+# For compatibility
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quiz_project.settings')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +52,12 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
 ]
 
+# Session Settings
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_SAVE_EVERY_REQUEST = True
 
 # Application definition
 
@@ -87,9 +101,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'quiz_project.wsgi.application'
 
 
+# Email Configuration for OTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@quizapp.com')
+
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Check for DATABASE_URL environment variable first (for Render deployment)
 database_url = os.getenv('DATABASE_URL')
 if database_url:
     db_config = dj_database_url.config(
@@ -98,15 +122,29 @@ if database_url:
         ssl_require=True
     )
 else:
-    # Default to PostgreSQL database with provided credentials
-    db_config = {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'quizdb',
-        'USER': 'postgres',
-        'PASSWORD': '1328',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    # Check for individual database environment variables
+    db_name = config('DB_NAME', default=None)
+    db_user = config('DB_USER', default=None)
+    db_password = config('DB_PASSWORD', default=None)
+    db_host = config('DB_HOST', default='localhost')
+    db_port = config('DB_PORT', default='5432')
+    
+    if db_name and db_user and db_password:
+        # Use PostgreSQL with environment variables
+        db_config = {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': db_name,
+            'USER': db_user,
+            'PASSWORD': db_password,
+            'HOST': db_host,
+            'PORT': db_port,
+        }
+    else:
+        # Default to SQLite for local development
+        db_config = {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
 
 DATABASES = {
     'default': db_config
@@ -157,17 +195,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Custom User Model
 AUTH_USER_MODEL = 'quiz.User'
 
-# Login URL
+# Login URLs
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
-
-# Session Settings
-SESSION_COOKIE_AGE = 1209600  # 2 weeks
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_SAVE_EVERY_REQUEST = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

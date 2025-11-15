@@ -533,6 +533,202 @@
         #studentFields {
             display: none;
         }
+        
+        /* CAPTCHA Styles */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .captcha-container {
+            animation: fadeIn 0.5s ease-out;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .captcha-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .captcha-code {
+            font-family: 'Courier New', monospace;
+            font-size: 1.8em;
+            font-weight: bold;
+            letter-spacing: 6px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            /* Prevent selection and copying */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            pointer-events: none;
+            /* Additional security measures */
+            position: relative;
+            overflow: hidden;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.3);
+            min-width: 180px;
+            text-align: center;
+        }
+        
+        /* Add visual noise to CAPTCHA */
+        .captcha-code::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255,255,255,0.03),
+                rgba(255,255,255,0.03) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+        }
+        
+        /* Add random dots for additional security */
+        .captcha-code::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08) 1px, transparent 1px),
+                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 100px 100px;
+            pointer-events: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            }
+            50% {
+                transform: scale(1.01);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            }
+        }
+        
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            }
+            50% {
+                text-shadow: 0 0 15px rgba(255,255,255,0.8), 1px 1px 3px rgba(0,0,0,0.5);
+            }
+        }
+        
+        .captcha-code {
+            animation: pulse 2s infinite, glow 3s infinite;
+        }
+        
+        input[name="captcha"] {
+            text-align: center;
+            letter-spacing: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 10px 12px;
+            margin: 6px 0;
+            background: #eee;
+            border: none;
+        }
+        
+        input[name="captcha"]:focus {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+            outline: none;
+        }
+        
+        /* Error animation for CAPTCHA */
+        .captcha-error {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        /* OTP Form Styles */
+        #otpForm h2 {
+            font-size: 2.2em;
+            margin-bottom: 0.5em;
+            color: #ff4b2b;
+        }
+        
+        #otpForm p {
+            font-size: 1.2em;
+            margin-bottom: 1.5em;
+            color: #666;
+        }
+        
+        #otpForm input[name="otp"] {
+            text-align: center;
+            letter-spacing: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 15px 12px;
+            margin: 6px 0 20px 0;
+            background: #eee;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+        
+        #otpForm input[name="otp"]:focus {
+            transform: scale(1.02);
+            border-color: #ff4b2b;
+            box-shadow: 0 0 15px rgba(255, 75, 43, 0.5);
+            outline: none;
+        }
+        
+        #otpForm button[type="button"] {
+            background: #666;
+            border: 1px solid #666;
+        }
+        
+        #otpForm button[type="button"]:hover {
+            background: #555;
+            border: 1px solid #555;
+        }
     </style>
 </head>
 <body>
@@ -560,6 +756,16 @@
                     {% csrf_token %}
                     <input type="text" name="username" placeholder="Username" required>
                     <input type="password" name="password" placeholder="Password" required>
+                    
+                    <!-- CAPTCHA Section -->
+                    <div class="captcha-container">
+                        <div class="captcha-display">
+                            <div class="captcha-code" id="captchaCode" data-captcha="{{ captcha }}">
+                            </div>
+                        </div>
+                        <input type="text" name="captcha" placeholder="Enter CAPTCHA" required>
+                    </div>
+                    
                     <button type="submit">Login</button>
                 </form>
             </div>
@@ -569,28 +775,30 @@
         <div class="register">
             <div class="content">
                 <h1>Register</h1>
-                <form method="post" action="{% url 'register' %}" id="registerForm">
+                <!-- Registration Form -->
+                <form method="post" action="{% url 'register' %}" id="registrationForm" style="display: block;">
                     {% csrf_token %}
+                    <input type="hidden" name="registration_step" value="1">
+                    <input type="hidden" name="role" value="student">
+                    
+                    <!-- Role Display -->
                     <div class="role-selector">
-                        <div class="role-option selected" onclick="selectRole('student')" id="studentRole">
+                        <div class="role-option selected">
                             🎓 Student
                         </div>
-                        <div class="role-option" onclick="selectRole('admin')" id="adminRole" style="display: none;">
-                            👨‍💼 Admin
-                        </div>
                     </div>
-                    <input type="hidden" name="role" id="roleInput" value="student" required>
+                    
                     <input type="text" name="username" placeholder="Username" required>
                     <input type="email" name="email" placeholder="Email" required>
                     <input type="text" name="phone" placeholder="Phone" required>
-                    <div id="studentFields" style="display: block;">
-                        <input type="text" name="roll_number" id="rollNumber" placeholder="Roll Number" required>
-                        <input type="text" name="branch" id="branch" placeholder="Branch" required>
-                    </div>
+                    <input type="text" name="roll_number" placeholder="Roll Number" required>
+                    <input type="text" name="branch" placeholder="Branch" required>
                     <input type="password" name="password1" placeholder="Password" required>
                     <input type="password" name="password2" placeholder="Confirm Password" required>
                     <button type="submit">Register</button>
+
                 </form>
+                
             </div>
         </div>
 
@@ -614,6 +822,11 @@
     </div>
 
     <script>
+        // Add global error handling
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript Error:', e.error);
+        });
+        
         // Create animated background shapes
         function createBackgroundAnimation() {
             const container = document.getElementById('bgAnimation');
@@ -642,6 +855,25 @@
         // Initialize background animation
         window.addEventListener('DOMContentLoaded', function() {
             createBackgroundAnimation();
+            
+            // Ensure CAPTCHA displays a 6-character code with lowercase letters and digits initially
+            const captchaDisplay = document.getElementById('captchaCode');
+            if (captchaDisplay) {
+                // Get the CAPTCHA value from the data attribute or generate a new one
+                const captchaValue = captchaDisplay.getAttribute('data-captcha') || '';
+                if (captchaValue) {
+                    captchaDisplay.textContent = captchaValue;
+                } else {
+                    // Generate initial 6-character CAPTCHA
+                    const captchaChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                    let initialCaptcha = '';
+                    for (let i = 0; i < 6; i++) {
+                        initialCaptcha += captchaChars.charAt(Math.floor(Math.random() * captchaChars.length));
+                    }
+                    captchaDisplay.textContent = initialCaptcha;
+                }
+                captchaDisplay.style.fontSize = '1.8em';
+            }
         });
         
         const container = document.getElementById('container');
@@ -681,6 +913,74 @@
                 branch.required = false;
             }
         }
+        
+        // Remove the old functions since we're using separate forms
+        // function showRegistrationFields() { ... }
+        // function showOtpForm() { ... } (old version)
+        // function showOtpForm(phone) { ... } (new version)
+        // function showRegistrationForm() { ... }
+        
+        // Function to maintain CSRF token between forms (no longer needed with single form)
+        function maintainCsrfToken() {
+            // Not needed anymore since we're using a single form
+        }
+        
+        // Check if we need to show OTP form on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add form submission debugging
+            const registrationForm = document.getElementById('registrationForm');
+            
+            if (registrationForm) {
+                registrationForm.addEventListener('submit', function(e) {
+                    console.log('Registration form submitted');
+                });
+            }
+        });
+        
+        // Remove the separate CSRF token maintenance function as it's now integrated
+        // into the showOtpForm and showRegistrationForm functions
+        
+        // CAPTCHA Refresh Function
+        function refreshCaptcha() {
+            // Generate a new random 6-character CAPTCHA with lowercase letters and digits
+            const captchaChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let newCaptcha = '';
+            for (let i = 0; i < 6; i++) {
+                newCaptcha += captchaChars.charAt(Math.floor(Math.random() * captchaChars.length));
+            }
+            
+            // Update CAPTCHA display with smooth animation
+            const captchaDisplay = document.getElementById('captchaCode');
+            captchaDisplay.style.opacity = '0';
+            captchaDisplay.style.transform = 'scale(0.95)';
+            captchaDisplay.style.transition = 'all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            
+            setTimeout(function() {
+                captchaDisplay.textContent = newCaptcha;
+                captchaDisplay.style.opacity = '1';
+                captchaDisplay.style.transform = 'scale(1)';
+                
+                // Add slight font size variation for visual interest
+                const randomFontSize = 1.7 + (Math.random() * 0.2); // 1.7em to 1.9em
+                captchaDisplay.style.fontSize = `${randomFontSize}em`;
+            }, 150);
+        }
+        
+        // Add CAPTCHA input focus animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const captchaInput = document.querySelector('input[name="captcha"]');
+            if (captchaInput) {
+                captchaInput.addEventListener('focus', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.boxShadow = '0 0 15px rgba(102, 126, 234, 0.5)';
+                });
+                
+                captchaInput.addEventListener('blur', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.boxShadow = 'none';
+                });
+            }
+        });
         
         // Toast Notification System
         function showToast(type, title, message) {
@@ -753,6 +1053,10 @@
                         }
                     } else if (text.toLowerCase().includes('login failed')) {
                         title = '🔒 Login Failed';
+                    } else if (text.toLowerCase().includes('invalid captcha')) {
+                        title = '🔢 CAPTCHA Error';
+                    } else if (text.toLowerCase().includes('please enter the captcha')) {
+                        title = '🔢 CAPTCHA Required';
                     } else if (text.toLowerCase().includes('logged out') || text.toLowerCase().includes('goodbye')) {
                         title = '👋 Logout Successful';
                         // For logout, show toast and then redirect

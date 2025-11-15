@@ -5,10 +5,14 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.db.models import Count, Avg, Q
+from django.conf import settings
+from django.views.decorators.csrf import csrf_protect
 from .models import User, Quiz, Question, QuizAttempt, StudentAnswer
 from .forms import StudentRegistrationForm, AdminRegistrationForm, LoginForm, QuizForm, QuestionForm
 import random
+import string
 import openpyxl
+from decouple import config  # For reading environment variables
 from openpyxl.styles import Font, Alignment, PatternFill
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
@@ -19,43 +23,83 @@ from io import BytesIO
 
 
 def generate_captcha(request):
-    """Generate a random 6-digit captcha"""
-    captcha = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    """Generate a random 6-character captcha with lowercase letters and digits"""
+    import random
+    import string
+    captcha = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
     request.session['captcha'] = captcha
     return captcha
 
 
+@csrf_protect
 def register_view(request):
+    print("Register view called")
+    print("Request method:", request.method)
+    
     if request.user.is_authenticated:
         return redirect('dashboard')
     
     if request.method == 'POST':
-        role = request.POST.get('role')
+        # Get form data
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        roll_number = request.POST.get('roll_number')
+        branch = request.POST.get('branch')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        role = request.POST.get('role', 'student')
         
-        # Only allow admin registration for superusers
-        if role == 'admin':
-            messages.error(request, 'Admin registration is restricted. Please contact the system administrator.')
-            return render(request, 'quiz/auth.html', {'show_register': True})
+        # Force role to 'student' for all public registrations
+        # Only superusers can create admin accounts
+        role = 'student'
         
-        if role == 'student':
-            form = StudentRegistrationForm(request.POST)
-        else:
-            messages.error(request, 'Invalid role selected. Please choose Student or Admin.')
-            return render(request, 'quiz/auth.html', {'show_register': True})
+        # Validate form data
+        errors = []
+        if not username:
+            errors.append('Username is required')
+        if not email:
+            errors.append('Email is required')
+        if not phone:
+            errors.append('Phone is required')
+        if not roll_number:
+            errors.append('Roll number is required')
+        if not branch:
+            errors.append('Branch is required')
+        if not password1:
+            errors.append('Password is required')
+        if password1 != password2:
+            errors.append('Passwords do not match')
         
-        if form.is_valid():
-            user = form.save()
+        # Check if user already exists
+        if User.objects.filter(username=username).exists():
+            errors.append('Username already exists')
+        if User.objects.filter(email=email).exists():
+            errors.append('Email already exists')
+        if User.objects.filter(phone=phone).exists():
+            errors.append('Phone number already exists')
+        
+        if not errors:
+            # Create user - only students can register publicly
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                phone=phone,
+                roll_number=roll_number,
+                branch=branch,
+                password=password1,
+                role='student'
+            )
+            
             messages.success(request, f'Registration successful! Welcome {user.username}. Please login to continue.')
-            return render(request, 'quiz/auth.html', {'show_register': False})
+            return redirect('login')
         else:
-            error_messages = []
-            for field, errors in form.errors.items():
-                for error in errors:
-                    error_messages.append(f'{field}: {error}')
-            messages.error(request, 'Registration failed. ' + ' '.join(error_messages))
+            # Add all errors as messages
+            for error in errors:
+                messages.error(request, error)
             return render(request, 'quiz/auth.html', {'show_register': True})
     else:
-        form = None
+        print("GET request - showing registration form")
     
     return render(request, 'quiz/auth.html', {'show_register': True})
 
@@ -64,12 +108,28 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     
+    # Generate a new CAPTCHA only for GET requests
+    if request.method == 'GET':
+        captcha = generate_captcha(request)
+    else:
+        # For POST requests, use the existing CAPTCHA from session
+        captcha = request.session.get('captcha', '')
+    
     if request.method == 'POST':
-        # Get username and password from the POST data
+        # Get username, password, and CAPTCHA from the POST data
         username = request.POST.get('username')
         password = request.POST.get('password')
+        user_captcha = request.POST.get('captcha')
+        session_captcha = request.session.get('captcha')
         
-        if username and password:
+        # Validate CAPTCHA
+        if not user_captcha:
+            messages.error(request, 'Please enter the CAPTCHA code.')
+        elif user_captcha != session_captcha:
+            messages.error(request, 'Invalid CAPTCHA code. Please try again.')
+            # Generate a new CAPTCHA for the next attempt
+            captcha = generate_captcha(request)
+        elif username and password:
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
@@ -80,7 +140,7 @@ def login_view(request):
         else:
             messages.error(request, 'Login failed. Please fill in all required fields.')
     
-    return render(request, 'quiz/auth.html', {'show_register': False})
+    return render(request, 'quiz/auth.html', {'show_register': False, 'captcha': captcha})
 
 
 @login_required

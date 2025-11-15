@@ -391,31 +391,31 @@
 </div>
 
 <div class="quiz-container">
-    <h2 style="margin-bottom: 40px;color: #2d3748;">✨ Create New Quiz</h2>
+    <h2 style="margin-bottom: 40px;color: #2d3748;font-size: 25px;">✨ Create New Quiz</h2>
     
     <div class="card">
         <form method="post">
             {% csrf_token %}
             
             <div class="form-group">
-                <label>📝 Quiz Title:</label>
+                <label style="font-size: 15px;">📝 Quiz Title:</label>
                 {{ form.title }}
             </div>
             
             <div class="form-group">
-                <label>💬 Description:</label>
+                <label style="font-size: 15px;">💬 Description:</label>
                 {{ form.description }}
             </div>
             
             <div class="form-group">
-                <label>⏱️ Time Limit (minutes):</label>
+                <label style="font-size: 15px;">⏱️ Time Limit (minutes):</label>
                 {{ form.time_limit }}
             </div>
             
             <div class="form-group">
                 <label class="checkbox-label">
                     {{ form.is_active }}
-                    <span>⚡ Make Quiz Active Immediately</span>
+                    <span style="font-size: 13px;">⚡ Make Quiz Active Immediately</span>
                 </label>
             </div>
             
@@ -425,9 +425,9 @@
             </div>
             {% endif %}
             
-            <div class="button-group">
+            <div class="button-group" style="gap: 10px;font-size: 25px;">
                 <button type="submit" class="btn btn-success">
-                    <span class="icon">✅</span> Create Quiz
+                    <span class="icon" >✅</span> Create Quiz
                 </button>
                 <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
                     ❌ Cancel

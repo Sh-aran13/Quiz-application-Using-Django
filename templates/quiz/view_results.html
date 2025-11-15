@@ -500,9 +500,9 @@
 <div class="card">
     <form method="get">
         <div class="form-group">
-            <label style="font-size: large;">📋 Select Quiz:</label>
-            <select name="quiz_id" onchange="this.form.submit()">
-                <option style="font-size: medium;font-family: cursive;" value="">-- Select a Quiz --</option>
+            <label style="font-size: 20px;">📋 Select Quiz:</label>
+            <select style="font-size: 13px;" name="quiz_id" onchange="this.form.submit()">
+                <option style="font-size: 15px;font-family: cursive;" value="">-- Select a Quiz --</option>
                 {% for quiz in quizzes %}
                 <option style="font-size: 15px;font-family: cursive;" value="{{ quiz.id }}" {% if selected_quiz and selected_quiz.id == quiz.id %}selected{% endif %}>
                     {{ quiz.title }}
@@ -570,7 +570,7 @@
 {% endif %}
 
 <div class="back-button-container">
-    <a href="{% url 'admin_dashboard' %}" class="btn btn-primary">← Back to Dashboard</a>
+    <a style="font-size: 15px;" href="{% url 'admin_dashboard' %}" class="btn btn-primary">← Back to Dashboard</a>
 </div>
 
 <script>
