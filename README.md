@@ -9,6 +9,7 @@ A comprehensive quiz application built with Django and PostgreSQL where administ
 - Add questions with multiple choice options
 - View student responses and scores
 - Export results to Excel or PDF format
+- Export questions to PDF or DOCX format
 - View detailed analytics
 
 ### Student Features
@@ -16,6 +17,7 @@ A comprehensive quiz application built with Django and PostgreSQL where administ
 - Attempt quizzes (only once per quiz)
 - Navigate between questions (Next/Previous)
 - Timed quizzes with countdown timer
+- Question shuffling for randomized order
 - View detailed results after submission
 - Quiz history tracking
 
@@ -93,6 +95,7 @@ The application will be available at: http://127.0.0.1:8000/
    - Navigate using Next/Previous buttons
    - Question navigator shows answered questions
    - Timer shows remaining time
+   - Questions are presented in shuffled order
    - Submit when done
 
 5. **View Results**: Check detailed results with correct answers
@@ -117,6 +120,7 @@ The application will be available at: http://127.0.0.1:8000/
    - Add multiple questions to a quiz
    - Specify marks for each question
    - Delete questions if needed
+   - Export questions to PDF or DOCX format
 
 6. **View Results**:
    - Select a quiz to view results
@@ -177,6 +181,7 @@ quiz/
 - Student-Quiz relationship
 - Score tracking
 - One attempt per student per quiz
+- Stores shuffled question order
 
 ### StudentAnswer
 - Individual question answers
@@ -195,7 +200,7 @@ quiz/
 - **Backend**: Django 4.2+
 - **Database**: PostgreSQL
 - **Frontend**: HTML, CSS, JavaScript
-- **Export**: openpyxl (Excel), ReportLab (PDF)
+- **Export**: openpyxl (Excel), ReportLab (PDF), python-docx (DOCX)
 
 ## Default Credentials (if created)
 
@@ -217,6 +222,14 @@ After running migrations, you can create users via registration page or Django a
 - Run `python manage.py collectstatic`
 - Check STATIC_ROOT in settings.py
 
+## Recent Enhancements
+
+- Question shuffling for students
+- Enhanced quiz interface with animations
+- Exit quiz functionality with confirmation
+- Question export to PDF/DOCX formats
+- Improved UI/UX with better animations and visual feedback
+
 ## Future Enhancements
 
 - Question categories/tags
@@ -232,7 +245,6 @@ After running migrations, you can create users via registration page or Django a
 ## License
 
 This project is open source and available for educational purposes.
-
 ## Support
 
 For issues or questions, please create an issue in the repository.
