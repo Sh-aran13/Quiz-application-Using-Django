@@ -1,0 +1,567 @@
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Andika:wght@700&family=Allura&family=Quantico:wght@400;700&display=swap');
+* { font-family: 'Inter', sans-serif; }
+
+
+/* == Animated Flowing Multicolor Gradient Background == */
+.animated-gradient-bg {
+  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: -100;
+  pointer-events: none; overflow: hidden;
+  background: linear-gradient(110deg, #6366f1 0%, #22d3ee 40%, #fbbf24 60%, #fb7185 100%);
+  animation: gradientFlowBG 20s ease-in-out infinite;
+}
+@keyframes gradientFlowBG {
+  0% {
+    background: linear-gradient(110deg, #6366f1 0%, #22d3ee 40%, #fbbf24 60%, #fb7185 100%);
+  }
+  25% {
+    background: linear-gradient(130deg, #a5b4fc 0%, #818cf8 35%, #f59e42 50%, #fb7170 100%);
+  }
+  50% {
+    background: linear-gradient(100deg, #60a5fa 10%, #38bdf8 40%, #22c55e 70%, #f43f5e 100%);
+  }
+  75% {
+    background: linear-gradient(120deg, #fbbf24 0%, #6366f1 45%, #22d3ee 55%, #c026d3 95%);
+  }
+  100% {
+    background: linear-gradient(110deg, #6366f1 0%, #22d3ee 40%, #fbbf24 60%, #fb7185 100%);
+  }
+}
+
+/* ==== Main global styles ==== */
+body {
+  background: transparent !important;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+h2, h3 {
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+/* == Title Animation == */
+h2 {
+  animation: fadeSlideDown 0.8s cubic-bezier(.6,2,0.3,1) both;
+  font-size: 2.3rem; color: #2d3748; margin-bottom: 10px;
+  text-shadow: 0 2px 22px #94a3b8b0;
+  text-align: center;
+}
+@keyframes fadeSlideDown {
+  0% { opacity: 0; transform: translateY(-55px);}
+  80%{ opacity: .98; transform:translateY(7px);}
+  100%{opacity: 1; transform: translateY(0);}
+}
+
+/* == Export Buttons Section == */
+.export-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 32px 0 24px 0;
+  flex-wrap: wrap;
+}
+.export-btn {
+  position: relative;
+  display: inline-block;
+  font-weight: 700;
+  font-size: 1.01rem;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #fff;
+  border: none;
+  outline: none;
+  padding: 1em 2.4em;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.07);
+  box-shadow: 0 8px 30px 0 #94a3b822, 0 2px 6px #6366f115;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow .27s, background .29s, transform .29s cubic-bezier(.74,1.5,.27,1.19);
+  backdrop-filter: blur(8px);
+  text-decoration: none !important;
+}
+.export-btn span { position: relative; z-index: 3;}
+.export-btn:before {
+  content: '';
+  position: absolute; left: 50%; top: 50%;
+  width: 0; height: 0;
+  background: radial-gradient(circle,rgba(255,255,255,0.2) 70%,transparent 100%);
+  border-radius: 50%;
+  transition: width .45s,height .45s;
+  z-index: 2;
+  transform: translate(-50%,-50%);
+}
+.export-btn:hover:before { width: 550px; height: 550px; }
+.export-btn:hover, .export-btn:focus {
+  box-shadow: 0 20px 44px 0 #a5b4fc59, 0 2px 6px #6366f129;
+  transform: scale(1.07) translateY(-3px);
+  text-decoration: none !important;
+}
+.export-btn.pdf { background: linear-gradient(135deg, #6366f1 0%, #60a5fa 100%);}
+.export-btn.excel { background: linear-gradient(135deg, #22d3ee 0%, #22c55e 100%);}
+.export-btn.print { background: linear-gradient(135deg, #fbbf24 0%, #f43f5e 100%);}
+.export-btn:active { transform: scale(.97);}
+.export-btn i { margin-right: 6px; font-style: normal; }
+.export-btn:visited { text-decoration: none !important; }
+@media (max-width: 600px) {
+  .export-btns {gap: 8px;}
+  .export-btn {padding: 0.7em 1.2em;}
+}
+
+/* === Main Card/Glass Table Section === */
+.card {
+  background: rgba(255,255,255,.93);
+  border-radius: 26px;
+  padding: 26px 19px 33px 19px;
+  margin: 0 auto 28px auto;
+  box-shadow: 0 14px 40px #6366f130, 0 1.5px 7px #60a5fa12;
+  max-width: 1000px; animation: fadeInUpCard 1.16s cubic-bezier(.22,1.32,.22,1) both;
+  backdrop-filter: blur(7px);
+}
+@keyframes fadeInUpCard {
+  0% { opacity: 0; transform: translateY(44px);}
+  100%{ opacity: 1; transform: translateY(0);}
+}
+.card h3 {
+  color: #111946; font-size: 1.35rem; font-family: 'Playfair Display', serif;
+  margin-bottom: 13px; position: relative; display: inline-block;
+  font-weight: 800; letter-spacing: 1px;
+}
+@media (max-width:420px){ .card h3{font-size:1.01rem;}}
+
+/* == Table == */
+table {
+  width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 17px; overflow:hidden; margin-top: 10px;
+  background: none;
+}
+thead {
+  background: linear-gradient(115deg, #6366f1 35%, #22d3ee 100%);
+}
+th {
+  font-family: 'Quantico', sans-serif;
+  font-size: 1.15rem;
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  letter-spacing: 1.2px;
+  padding: 17px 12px;
+  background: none;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  border-bottom: 3px solid #e0e7ffaa;
+  box-shadow: 0 2px 12px #6366f120;
+}
+td {
+  font-size: 1.02rem;
+  color: #334155;
+  font-weight: 600;
+  padding: 16px 12px;
+  border-bottom: 1px solid #e2eafc;
+  background: none;
+}
+tbody tr {
+  opacity: 0;
+  transform: translateY(18px) scale(.98);
+  animation: rowInTab 0.53s cubic-bezier(.71,2,.38,.73) forwards;
+  background: linear-gradient(90deg,#fff 75%, #e0e7ff 100%);
+  transition: background 0.26s, box-shadow .2s;
+}
+tbody tr:nth-child(odd) { background: linear-gradient(90deg,#f7faff 85%, #e0e7ff 100%);}
+tbody tr:nth-child(even) { background: linear-gradient(90deg, #e0e7ff 85%, #f7faff 100%);}
+tbody tr:nth-child(1) { animation-delay: 0.07s; }
+tbody tr:nth-child(2) { animation-delay: 0.15s; }
+tbody tr:nth-child(3) { animation-delay: 0.21s; }
+tbody tr:nth-child(4) { animation-delay: 0.29s; }
+tbody tr:nth-child(5) { animation-delay: 0.37s; }
+@keyframes rowInTab {
+  from { opacity: 0; transform: translateY(38px) scale(.96);}
+  to   { opacity: 1; transform: translateY(0) scale(1);}
+}
+tbody tr:hover {
+  background: linear-gradient(90deg, #a5b4fcbb 25%, #38bdf899 100%);
+  box-shadow:0 3px 19px #6366f110;
+}
+
+/* == Action Buttons == */
+.action-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.action-btn {
+  display: block;
+  border-radius: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.92em;
+  padding: 9px 0px;
+  width: 100%;
+  text-align: center;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(120deg, #22d3ee, #4f46e5 100%);
+  box-shadow: 0 2px 9px #818cf80a;
+  position: relative;
+  margin-bottom: 0; margin-top: 0;
+  text-decoration: none !important;
+  transition: background .23s, box-shadow .34s, transform .24s cubic-bezier(.67,1.5,.50,1.33);
+}
+.action-btn.btn-view { background: linear-gradient(120deg, #22d3ee, #4f46e5 100%);}
+.action-btn.btn-delete { background: linear-gradient(120deg,#fb7185,#a21caf 100%);}
+.action-btn:before {
+  content: "";
+  position: absolute; left: 50%; top: 50%;
+  width: 0; height: 0;
+  background: radial-gradient(circle,rgba(255,255,255,.10) 70%,transparent 100%);
+  border-radius: 50%;
+  transition: width .34s, height .34s;
+  z-index: 1;
+  transform: translate(-50%,-50%);
+}
+.action-btn:hover:before { width: 180px; height: 180px;}
+.action-btn:active { transform: scale(.97);}
+.action-btn:hover {
+  box-shadow: 0 8px 20px #818cf84a;
+  background: linear-gradient(100deg,#818cf8,#38bdf8 85%);
+  text-decoration: none !important;
+}
+.action-btn:visited { text-decoration: none !important; }
+
+@media (max-width:705px){ th, td{ font-size: .85em; padding: 10px 4px;} }
+@media (max-width:505px){
+  th, td{ font-size: .80em;}
+  .action-btn{ padding:7px 0;}
+  .card{ padding:13px 6px;}
+}
+
+/* == Empty State == */
+.empty-state { text-align: center; padding: 49px 20px; animation: fadeIn 0.96s 0.19s both;}
+@keyframes fadeIn { from { opacity: 0;} to { opacity: 1;}}
+.empty-state-icon { font-size:3.3rem; display: inline-block; margin-bottom:13px; animation: iconPulse 1s infinite alternate;}
+@keyframes iconPulse { from{transform:scale(.97);} to{transform:scale(1.08);} }
+.empty-state p { font-size: 1.02rem; color: #535862; margin:0;}
+
+/* == Modal == */
+.modal-overlay {
+  display:none; align-items: center; justify-content:center;
+  position:fixed; top: 0; left:0; width:100vw; height:100vh; z-index: 9999;
+  background: rgba(51,51,60,.58); backdrop-filter: blur(7px);
+}
+.modal-overlay.active { display:flex; }
+.modal-content {
+  background: rgba(255,255,255,0.978);
+  border-radius: 25px; padding: 30px;
+  box-shadow: 0 18px 54px rgba(49,46,129,0.20);
+  text-align:center; animation: modalPop .43s cubic-bezier(.55,1.2,.38,.95);
+}
+@keyframes modalPop {
+  0%{ opacity:0; transform: scale(.7) translateY(-30px);}
+  90%{ opacity:.96; transform: scale(1.06) translateY(6px);}
+  100%{opacity:1; transform: scale(1) translateY(0);}
+}
+.modal-icon { font-size: 2.8rem; margin-bottom: 8px; animation: iconPopBounce 0.7s infinite;}
+@keyframes iconPopBounce { 0%,100%{transform:translateY(0);} 50%{transform: translateY(-8px);} }
+.modal-title { font-size: 1.11rem; font-weight: 800; color:#2d3748; margin-bottom:8px;}
+.modal-message { font-size: 0.99rem; color:#6366f1; margin-bottom:22px;}
+.modal-buttons { display:flex; gap:11px; justify-content:center;}
+.modal-btn {
+  padding: 8px 25px;
+  border-radius: 26px;
+  font-weight:700;
+  border: none; cursor: pointer;
+  font-size:0.96rem;
+  background: linear-gradient(120deg, #6366f1, #38bdf8 90%);
+  color: white;
+  box-shadow: 0 3px 13px #6366f11f;
+  transition: box-shadow .28s, background .23s, transform .22s cubic-bezier(.45,1.7,.41,1);
+}
+.modal-btn-confirm { background: linear-gradient(120deg, #dc2626, #fb7185 100%);}
+.modal-btn-cancel { background: linear-gradient(120deg, #64748b, #6366f1 100%);}
+.modal-btn:hover { box-shadow: 0 7px 20px #818cf8aa; transform: scale(1.06); }
+.modal-btn:active { transform: scale(.97);}
+@media (max-width:540px){ .modal-content{padding:12px;} .modal-title{font-size:.97rem;} }
+
+/* == Toast Notifications == */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  animation: toastSlideIn 0.3s ease-out forwards;
+  min-width: 300px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateX(120%);
+}
+
+@keyframes toastSlideIn {
+  to {
+    transform: translateX(0);
+  }
+}
+
+.toast.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-left: 5px solid #047857;
+}
+
+.toast.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-left: 5px solid #b91c1c;
+}
+
+.toast-icon {
+  font-size: 1.5rem;
+  margin-right: 12px;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-left: 15px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  width: 100%;
+  transform-origin: left;
+  animation: toastProgress 3s linear forwards;
+}
+
+@keyframes toastProgress {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* == Print Styles == */
+@media print {
+  body{background:#fff;}
+  .animated-gradient-bg, .export-btns, .modal-overlay, h2{ display: none !important;}
+  .card { box-shadow: none; border-radius: 0; background: white; margin: 0; padding: 0;}
+  thead { background: #667eea !important; -webkit-print-color-adjust:exact; color-adjust:exact;}
+  th { color: #fff !important;}
+  table { width:100%; box-shadow:none;}
+  .action-btn {display:none;}
+  td:last-child, th:last-child { display:none;}
+  @page{margin:1in;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animated-gradient-bg"></div>
+<div style="text-align: center; margin-bottom: 30px;">
+  <h2>👥 Manage Students</h2>
+</div>
+{% csrf_token %}
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-content">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title">Confirm Student Deletion</div>
+    <div class="modal-message" id="deleteModalMessage">Are you sure you want to delete this student?<br>This action cannot be undone.</div>
+    <div class="modal-buttons">
+      <button class="modal-btn modal-btn-confirm" onclick="confirmDeleteAction()">Yes, Delete</button>
+      <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="export-btns">
+  <a href="{% url 'export_students_pdf' %}" class="export-btn pdf"><span>📄 Export PDF</span></a>
+  <a href="{% url 'export_students_excel' %}" class="export-btn excel"><span>📊 Export Excel</span></a>
+  <button type="button" class="export-btn print" onclick="printStudentList()"><span>🖨️ Print List</span></button>
+</div>
+
+<div class="card print-area">
+  <h3>🎓 Student List</h3>
+  {% if students %}
+  <table>
+    <thead>
+      <tr>
+        <th>Roll Number</th>
+        <th>Phone</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Branch</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+      <tr>
+        <td><strong>{{ student.roll_number }}</strong></td>
+        <td>{{ student.phone }}</td>
+        <td>{{ student.username }}</td>
+        <td>{{ student.email }}</td>
+        <td>{{ student.branch|default:"Not specified" }}</td>
+        <td>
+          <div class="action-btns">
+            <a href="{% url 'student_profile' student.id %}" class="action-btn btn-view" title="View Profile">View</a>
+            <a href="#" class="action-btn btn-delete" onclick="showDeleteModal(event, {{ student.id }}, '{{ student.username|escapejs }}')" title="Delete Student">Delete</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">👥</div>
+      <p>No students found in the system.</p>
+    </div>
+  {% endif %}
+</div>
+<div style="text-align:center;margin-top:24px;">
+  <a href="{% url 'admin_dashboard' %}" class="export-btn print" style="font-size:1em;">← Back to Dashboard</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let deleteStudentId = null;
+
+// Show delete confirmation modal
+function showDeleteModal(event, studentId, studentName) {
+  event.preventDefault();
+  deleteStudentId = studentId;
+  const modal = document.getElementById('deleteModal');
+  const modalMessage = document.getElementById('deleteModalMessage');
+  modalMessage.innerHTML = `Are you sure you want to delete the student <strong>"${studentName}"</strong>?<br>This action cannot be undone.`;
+  modal.classList.add('active');
+}
+
+// Close delete modal
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('active');
+  showToast('error', '❌ Deletion Cancelled', 'Student deletion was cancelled. The student is safe!');
+}
+
+// Confirm and execute deletion
+function confirmDeleteAction() {
+  // Close modal first
+  document.getElementById('deleteModal').classList.remove('active');
+  
+  // Show loading toast
+  showToast('success', '🗑️ Deleting Student', 'Please wait while we delete the student...');
+  
+  // Submit deletion via AJAX
+  fetch(`{% url 'delete_student' 0 %}`.replace('0', deleteStudentId), {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      showToast('success', '✅ Student Deleted', 'The student has been successfully deleted!');
+      // Reload the page after a short delay to reflect changes
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
+    } else {
+      showToast('error', '❌ Deletion Failed', 'Failed to delete the student. Please try again.');
+    }
+  })
+  .catch(error => {
+    showToast('error', '❌ Deletion Failed', 'An error occurred while deleting the student.');
+  });
+}
+
+// Close modal on overlay click
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeDeleteModal();
+    }
+  });
+});
+
+// Print only the student list table
+function printStudentList() {
+  window.print();
+}
+
+// Toast notification system
+function showToast(type, title, message) {
+  const toastContainer = document.getElementById('toastContainer');
+  
+  // Create toast element
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  // Add content
+  toast.innerHTML = `
+    <div class="toast-icon">${type === 'success' ? '✅' : '❌'}</div>
+    <div class="toast-content">
+      <div style="font-size: 1.1rem; margin-bottom: 4px;">${title}</div>
+      <div style="font-size: 0.9rem; font-weight: 400;">${message}</div>
+    </div>
+    <button class="toast-close">&times;</button>
+    <div class="toast-progress"></div>
+  `;
+  
+  // Add close functionality
+  const closeBtn = toast.querySelector('.toast-close');
+  closeBtn.addEventListener('click', function() {
+    toast.style.animation = 'toastSlideIn 0.3s ease-out reverse forwards';
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  });
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.style.animation = 'toastSlideIn 0.3s ease-out reverse forwards';
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }
+  }, 3000);
+  
+  // Add to container
+  toastContainer.appendChild(toast);
+}
+</script>
+{% endblock %}

@@ -791,6 +791,18 @@
         <div class="card">
             <h3 style="color: #2d3748;margin-bottom: 25px;position: relative;padding-left: 20px;font-size: 18px;"><br>Question List ({{ questions.count }})</h3>
             
+            <!-- Export buttons -->
+            {% if questions %}
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{% url 'export_questions_pdf' quiz.id %}" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem; text-decoration: none;">
+                    📄 Export to PDF
+                </a>
+                <a href="{% url 'export_questions_docx' quiz.id %}" class="btn btn-success" style="padding: 10px 20px; font-size: 0.9rem; text-decoration: none;">
+                    📝 Export to DOCX
+                </a>
+            </div>
+            {% endif %}
+            
             {% if questions %}
             <div class="questions-scroll">
                 {% for question in questions %}

@@ -71,6 +71,7 @@ class QuizAttempt(models.Model):
     score = models.IntegerField(default=0)
     total_marks = models.IntegerField(default=0)
     is_completed = models.BooleanField(default=False)
+    question_order = models.TextField(blank=True, null=True)
     
     class Meta:
         unique_together = ('student', 'quiz')

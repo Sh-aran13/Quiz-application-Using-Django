@@ -20,9 +20,6 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from io import BytesIO
-from docx import Document
-from docx.shared import Inches
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
 def generate_captcha(request):
@@ -157,8 +154,7 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
-    # If user is admin or superuser, redirect to admin dashboard
-    if request.user.role == 'admin' or request.user.is_superuser:
+    if request.user.role == 'admin':
         return redirect('admin_dashboard')
     else:
         return redirect('student_dashboard')
@@ -166,24 +162,14 @@ def dashboard_view(request):
 
 @login_required
 def admin_dashboard(request):
-    # Allow all users with admin role AND superusers to access admin dashboard
-    if request.user.role != 'admin' and not request.user.is_superuser:
-        messages.error(request, 'Access denied')
+    # Only allow superusers to access admin dashboard
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin dashboard is only accessible to superusers.')
         return redirect('student_dashboard')
     
-    # Show all quizzes for admin users, not just their own
-    quizzes = Quiz.objects.all().annotate(
-        attempt_count=Count('attempts')
-    )
-    
-    active_quizzes_count = quizzes.filter(is_active=True).count()
-    
-    context = {
-        'quizzes': quizzes,
-        'total_quizzes': quizzes.count(),
-        'total_attempts': QuizAttempt.objects.count(),
-        'active_quizzes_count': active_quizzes_count,
-    }
+    if request.user.role != 'admin':
+        messages.error(request, 'Access denied')
+        return redirect('student_dashboard')
     
     # Show all quizzes for admin users, not just their own
     quizzes = Quiz.objects.all().annotate(
@@ -204,11 +190,9 @@ def admin_dashboard(request):
 
 @login_required
 def student_dashboard(request):
-    # Allow students and superusers (who aren't admins) to access student dashboard
-    if request.user.role != 'student' and not (request.user.is_superuser and request.user.role != 'admin'):
+    if request.user.role != 'student':
         messages.error(request, 'Access denied')
-        # Instead of redirecting to admin_dashboard, redirect to login to avoid loops
-        return redirect('login')
+        return redirect('admin_dashboard')
     
     # Get all active quizzes
     all_quizzes = Quiz.objects.filter(is_active=True)
@@ -238,8 +222,12 @@ def student_dashboard(request):
 
 @login_required
 def add_quiz(request):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -259,8 +247,12 @@ def add_quiz(request):
 
 @login_required
 def add_questions(request, quiz_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -289,8 +281,12 @@ def add_questions(request, quiz_id):
 
 @login_required
 def delete_question(request, question_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -303,8 +299,12 @@ def delete_question(request, question_id):
 
 @login_required
 def edit_question(request, question_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -329,8 +329,12 @@ def edit_question(request, question_id):
 
 @login_required
 def toggle_quiz_status(request, quiz_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -345,8 +349,12 @@ def toggle_quiz_status(request, quiz_id):
 
 @login_required
 def delete_quiz(request, quiz_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -364,8 +372,12 @@ def delete_quiz(request, quiz_id):
 
 @login_required
 def view_results(request):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -393,8 +405,12 @@ def view_results(request):
 
 @login_required
 def export_results_excel(request, quiz_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -532,8 +548,12 @@ def export_results_excel(request, quiz_id):
 
 @login_required
 def export_results_pdf(request, quiz_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
+    # Only allow superusers to access admin features
+    if not request.user.is_superuser:
+        messages.error(request, 'Access denied. Admin features are only accessible to superusers.')
+        return redirect('student_dashboard')
+    
+    if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('student_dashboard')
     
@@ -718,40 +738,18 @@ def take_quiz(request, quiz_id):
     
     # Create or get attempt
     if not existing_attempt:
-        questions = list(Question.objects.filter(quiz=quiz))
+        questions = Question.objects.filter(quiz=quiz)
         total_marks = sum([q.marks for q in questions])
-        
-        # Shuffle questions for this student's attempt
-        import random
-        random.shuffle(questions)
-        
-        # Store the shuffled order as a comma-separated string of question IDs
-        question_order = ','.join([str(q.id) for q in questions])
         
         attempt = QuizAttempt.objects.create(
             student=request.user,
             quiz=quiz,
-            total_marks=total_marks,
-            question_order=question_order
+            total_marks=total_marks
         )
     else:
         attempt = existing_attempt
     
-    # Get questions in the correct order
-    if attempt.question_order:
-        # If there's a stored order, use it
-        question_ids = [int(id) for id in attempt.question_order.split(',')]
-        questions = []
-        for qid in question_ids:
-            try:
-                question = Question.objects.get(id=qid)
-                questions.append(question)
-            except Question.DoesNotExist:
-                # If a question was deleted, skip it
-                pass
-    else:
-        # Fallback to default ordering
-        questions = Question.objects.filter(quiz=quiz).order_by('order', 'id')
+    questions = Question.objects.filter(quiz=quiz).order_by('order', 'id')
     
     context = {
         'quiz': quiz,
@@ -775,22 +773,7 @@ def submit_quiz(request, attempt_id):
         return redirect('student_dashboard')
     
     if request.method == 'POST':
-        # Get questions in the correct order
-        if attempt.question_order:
-            # If there's a stored order, use it
-            question_ids = [int(id) for id in attempt.question_order.split(',')]
-            questions = []
-            for qid in question_ids:
-                try:
-                    question = Question.objects.get(id=qid)
-                    questions.append(question)
-                except Question.DoesNotExist:
-                    # If a question was deleted, skip it
-                    pass
-        else:
-            # Fallback to default ordering
-            questions = Question.objects.filter(quiz=attempt.quiz).order_by('order', 'id')
-        
+        questions = Question.objects.filter(quiz=attempt.quiz)
         score = 0
         
         for question in questions:
@@ -1105,7 +1088,7 @@ def export_students_pdf(request):
         ])
     
     # Create table with enhanced styling
-    table = Table(data, colWidths=[0.5*inch, 1.2*inch, 1.2*inch, 2.1*inch, 1.6*inch])
+    table = Table(data, colWidths=[0.5*inch, 1.2*inch, 1.2*inch, 2.8*inch, 1.3*inch])
     
     # Table styling with attractive design
     table_style = TableStyle([
@@ -1114,9 +1097,9 @@ def export_students_pdf(request):
         ('TEXTCOLOR', (0, 0), (-1, 0), HexColor('#FFFFFF')),
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('TOPPADDING', (0, 0), (-1, 0), 12),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 15),
+        ('TOPPADDING', (0, 0), (-1, 0), 15),
         
         # Data rows styling
         ('ALIGN', (0, 1), (0, -1), 'CENTER'),    # No.
@@ -1124,11 +1107,10 @@ def export_students_pdf(request):
         ('ALIGN', (2, 1), (2, -1), 'CENTER'),    # Phone
         ('ALIGN', (3, 1), (3, -1), 'LEFT'),      # Email
         ('ALIGN', (4, 1), (4, -1), 'CENTER'),    # Branch
-        ('FONTSIZE', (4, 1), (4, -1), 11),       # Slightly larger font for Branch
         
         # Font styling
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (4, -1), 10),
+        ('FONTSIZE', (0, 1), (4, -1), 12),
         
         # Grid and borders with attractive styling
         ('GRID', (0, 0), (-1, -1), 2, HexColor('#1E40AF')),
@@ -1152,174 +1134,5 @@ def export_students_pdf(request):
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="student_list.pdf"'
-    
-    return response
-
-
-@login_required
-def export_questions_pdf(request, quiz_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
-        messages.error(request, 'Access denied')
-        return redirect('student_dashboard')
-    
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    questions = Question.objects.filter(quiz=quiz).order_by('order', 'id')
-    
-    # Create PDF
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=50, bottomMargin=50)
-    elements = []
-    
-    # Enhanced styles
-    from reportlab.lib.styles import ParagraphStyle
-    from reportlab.lib.colors import HexColor
-    from reportlab.platypus import Spacer, Table, TableStyle
-    from reportlab.lib.units import inch
-    
-    # Title style
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        fontSize=24,
-        textColor=HexColor('#1E3A8A'),
-        spaceAfter=25,
-        alignment=1,  # Center
-        fontName='Helvetica-Bold'
-    )
-    
-    # Subtitle style
-    subtitle_style = ParagraphStyle(
-        'CustomSubtitle',
-        fontSize=14,
-        textColor=HexColor('#4B5563'),
-        spaceAfter=35,
-        alignment=1,  # Center
-        fontName='Helvetica'
-    )
-    
-    # Question style
-    question_style = ParagraphStyle(
-        'Question',
-        fontSize=12,
-        textColor=HexColor('#000000'),
-        spaceAfter=15,
-        fontName='Helvetica-Bold'
-    )
-    
-    # Option style
-    option_style = ParagraphStyle(
-        'Option',
-        fontSize=11,
-        textColor=HexColor('#374151'),
-        leftIndent=20,
-        spaceAfter=8,
-        fontName='Helvetica'
-    )
-    
-    # Answer style
-    answer_style = ParagraphStyle(
-        'Answer',
-        fontSize=11,
-        textColor=HexColor('#059669'),
-        spaceAfter=20,
-        fontName='Helvetica-Bold'
-    )
-    
-    # Add title and subtitle
-    from datetime import datetime
-    from reportlab.platypus import Paragraph
-    
-    title = Paragraph(f"Quiz Questions: {quiz.title}", title_style)
-    subtitle = Paragraph(f"Generated on: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}", subtitle_style)
-    
-    elements.append(title)
-    elements.append(subtitle)
-    elements.append(Spacer(1, 30))
-    
-    # Add questions
-    for idx, question in enumerate(questions, 1):
-        # Question text
-        question_text = Paragraph(f"<b>Q{idx}:</b> {question.question_text}", question_style)
-        elements.append(question_text)
-        elements.append(Spacer(1, 10))
-        
-        # Options
-        option_a = Paragraph(f"<b>A.</b> {question.option_a}", option_style)
-        option_b = Paragraph(f"<b>B.</b> {question.option_b}", option_style)
-        option_c = Paragraph(f"<b>C.</b> {question.option_c}", option_style)
-        option_d = Paragraph(f"<b>D.</b> {question.option_d}", option_style)
-        
-        elements.append(option_a)
-        elements.append(option_b)
-        elements.append(option_c)
-        elements.append(option_d)
-        elements.append(Spacer(1, 10))
-        
-        # Correct answer
-        correct_answer = Paragraph(f"<b>Correct Answer:</b> Option {question.correct_answer}", answer_style)
-        elements.append(correct_answer)
-        elements.append(Spacer(1, 20))
-    
-    # Build PDF
-    doc.build(elements)
-    
-    # Return response
-    buffer.seek(0)
-    response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{quiz.title}_questions.pdf"'
-    
-    return response
-
-
-@login_required
-def export_questions_docx(request, quiz_id):
-    # Allow all users with admin role AND superusers to access admin features
-    if request.user.role != 'admin' and not request.user.is_superuser:
-        messages.error(request, 'Access denied')
-        return redirect('student_dashboard')
-    
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    questions = Question.objects.filter(quiz=quiz).order_by('order', 'id')
-    
-    # Create DOCX document
-    document = Document()
-    
-    # Add title
-    title = document.add_heading(f'Quiz Questions: {quiz.title}', 0)
-    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
-    # Add subtitle with date
-    from datetime import datetime
-    subtitle = document.add_paragraph(f'Generated on: {datetime.now().strftime("%B %d, %Y at %I:%M %p")}')
-    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
-    # Add a line break
-    document.add_paragraph()
-    
-    # Add questions
-    for idx, question in enumerate(questions, 1):
-        # Question text
-        document.add_paragraph(f'Q{idx}: {question.question_text}', style='Heading 2')
-        
-        # Options
-        document.add_paragraph(f'A. {question.option_a}', style='Normal')
-        document.add_paragraph(f'B. {question.option_b}', style='Normal')
-        document.add_paragraph(f'C. {question.option_c}', style='Normal')
-        document.add_paragraph(f'D. {question.option_d}', style='Normal')
-        
-        # Correct answer
-        document.add_paragraph(f'Correct Answer: Option {question.correct_answer}', style='Normal')
-        
-        # Add spacing between questions
-        document.add_paragraph()
-    
-    # Save document to BytesIO buffer
-    buffer = BytesIO()
-    document.save(buffer)
-    buffer.seek(0)
-    
-    # Return response
-    response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-    response['Content-Disposition'] = f'attachment; filename="{quiz.title}_questions.docx"'
     
     return response

@@ -1,0 +1,137 @@
+<script>
+// Store question IDs in order
+let questionIds = [
+    {% for question in questions %}
+    {{ question.id }}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+let currentQuestionIndex = 0;
+const totalQuestions = {{ questions.count }};
+let timeRemaining = {{ quiz.time_limit }} * 60; // in seconds
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    showQuestionByIndex(0);
+    updateQuestionNav();
+    startTimer();
+    
+    // Add event listeners to all radio buttons
+    const radios = document.querySelectorAll('input[type="radio"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', updateQuestionNav);
+    });
+});
+
+function showQuestionByIndex(index) {
+    // Hide all questions
+    document.querySelectorAll('.question-container').forEach(q => {
+        q.classList.remove('active');
+    });
+    
+    // Show current question
+    const questionId = questionIds[index];
+    const questionDiv = document.getElementById('question-' + questionId);
+    if (questionDiv) {
+        questionDiv.classList.add('active');
+        currentQuestionIndex = index;
+        updateQuestionNav();
+    }
+}
+
+function showQuestionById(questionId) {
+    const index = questionIds.indexOf(questionId);
+    if (index !== -1) {
+        showQuestionByIndex(index);
+    }
+}
+
+function nextQuestion() {
+    if (currentQuestionIndex < totalQuestions - 1) {
+        showQuestionByIndex(currentQuestionIndex + 1);
+    }
+}
+
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        showQuestionByIndex(currentQuestionIndex - 1);
+    }
+}
+
+function clearResponse(questionId) {
+    // Clear the selected radio button for the current question
+    const questionDiv = document.querySelector(`.question-container.active`);
+    const radios = questionDiv.querySelectorAll('input[type="radio"]');
+    radios.forEach(radio => {
+        radio.checked = false;
+    });
+    
+    // Update the navigation buttons to reflect the cleared response
+    updateQuestionNav();
+}
+
+function updateQuestionNav() {
+    const navDiv = document.getElementById('questionNav');
+    navDiv.innerHTML = '';
+    
+    for (let i = 0; i < totalQuestions; i++) {
+        const questionId = questionIds[i];
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = i + 1;
+        btn.onclick = () => showQuestionByIndex(i);
+        
+        // Check if question is answered
+        const questionDiv = document.getElementById('question-' + questionId);
+        const radios = questionDiv.querySelectorAll('input[type="radio"]');
+        let isAnswered = false;
+        radios.forEach(radio => {
+            if (radio.checked) isAnswered = true;
+        });
+        
+        if (isAnswered) {
+            btn.classList.add('answered');
+        } else {
+            btn.classList.add('unanswered');
+        }
+        
+        if (i === currentQuestionIndex) {
+            btn.classList.add('current');
+        }
+        
+        navDiv.appendChild(btn);
+    }
+}
+
+function startTimer() {
+    const timerInterval = setInterval(() => {
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Time is up! The quiz will be submitted automatically.');
+            document.getElementById('quizForm').submit();
+        }
+        
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        document.getElementById('timeDisplay').textContent = 
+            minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        
+        if (timeRemaining <= 60) {
+            document.getElementById('timeDisplay').style.color = '#e53e3e';
+        }
+        
+        timeRemaining--;
+    }, 1000);
+}
+
+function confirmSubmit() {
+    document.getElementById('confirmModal').classList.add('active');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('active');
+}
+
+function submitQuiz() {
+    document.getElementById('quizForm').submit();
+}
+</script>

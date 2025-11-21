@@ -42,7 +42,7 @@ CSRF_USE_SESSIONS = False
 CSRF_COOKIE_AGE = 3600  # 1 hour
 CSRF_COOKIE_DOMAIN = None
 
-ALLOWED_HOSTS = ['quiz-application-using-django.onrender.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['quiz-application-using-django.onrender.com', '127.0.0.1', 'localhost', '0.0.0.0', '*']
 
 # CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS = [
@@ -116,11 +116,22 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@quizapp.com')
 # Check for DATABASE_URL environment variable first (for Render deployment)
 database_url = os.getenv('DATABASE_URL')
 if database_url:
-    db_config = dj_database_url.config(
-        default=database_url,
-        conn_max_age=600,
-        ssl_require=True
-    )
+    # If DATABASE_URL is set to use quizesdb, use that configuration
+    if database_url == 'postgresql://postgres:postgres@localhost:5432/quizesdb':
+        db_config = {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'quizesdb',
+            'USER': 'postgres',
+            'PASSWORD': '1328',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    else:
+        db_config = dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            ssl_require=True
+        )
 else:
     # Check for individual database environment variables
     db_name = config('DB_NAME', default=None)
@@ -129,8 +140,8 @@ else:
     db_host = config('DB_HOST', default='localhost')
     db_port = config('DB_PORT', default='5432')
     
+    # If specific database config is provided, use PostgreSQL
     if db_name and db_user and db_password:
-        # Use PostgreSQL with environment variables
         db_config = {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': db_name,
@@ -149,7 +160,6 @@ else:
 DATABASES = {
     'default': db_config
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

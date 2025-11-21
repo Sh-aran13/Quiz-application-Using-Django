@@ -9,6 +9,11 @@ urlpatterns = [
     
     # Admin URLs
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('manage-students/', views.manage_students, name='manage_students'),
+    path('delete-student/<int:student_id>/', views.delete_student, name='delete_student'),
+    path('student-profile/<int:student_id>/', views.student_profile, name='student_profile'),
+    path('export-students-pdf/', views.export_students_pdf, name='export_students_pdf'),  # New URL for PDF export
+    path('export-students-excel/', views.export_students_excel, name='export_students_excel'),  # New URL for Excel export
     path('add-quiz/', views.add_quiz, name='add_quiz'),
     path('add-questions/<int:quiz_id>/', views.add_questions, name='add_questions'),
     path('edit-question/<int:question_id>/', views.edit_question, name='edit_question'),
@@ -18,6 +23,8 @@ urlpatterns = [
     path('view-results/', views.view_results, name='view_results'),
     path('export-results-excel/<int:quiz_id>/', views.export_results_excel, name='export_results_excel'),
     path('export-results-pdf/<int:quiz_id>/', views.export_results_pdf, name='export_results_pdf'),
+    path('export-questions-pdf/<int:quiz_id>/', views.export_questions_pdf, name='export_questions_pdf'),
+    path('export-questions-docx/<int:quiz_id>/', views.export_questions_docx, name='export_questions_docx'),
     
     # Student URLs
     path('student-dashboard/', views.student_dashboard, name='student_dashboard'),

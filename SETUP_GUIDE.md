@@ -13,7 +13,7 @@
 #### Option A: Using pgAdmin (GUI)
 1. Open pgAdmin 4
 2. Right-click on "Databases" → "Create" → "Database"
-3. Enter database name: `quiz_db`
+3. Enter database name: `quizesdb`
 4. Click "Save"
 
 #### Option B: Using Command Line
@@ -21,7 +21,7 @@
 2. Navigate to PostgreSQL bin directory (usually: `C:\Program Files\PostgreSQL\<version>\bin`)
 3. Run: `psql -U postgres`
 4. Enter your PostgreSQL password
-5. Execute: `CREATE DATABASE quiz_db;`
+5. Execute: `CREATE DATABASE quizesdb;`
 6. Type `\q` to exit
 
 ### Step 3: Update Database Configuration
@@ -32,7 +32,7 @@ Open `quiz_project/settings.py` and update the DATABASES section with your Postg
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'quiz_db',
+        'NAME': 'quizesdb',
         'USER': 'postgres',              # Your PostgreSQL username
         'PASSWORD': 'your_password',      # Your PostgreSQL password
         'HOST': 'localhost',
@@ -72,7 +72,7 @@ Visit: http://127.0.0.1:8000/
 - Make sure PostgreSQL service is running
 
 ### Issue 2: Database Does Not Exist
-**Error**: `database "quiz_db" does not exist`
+**Error**: `database "quizesdb" does not exist`
 
 **Solution**:
 - Create the database using pgAdmin or psql command line

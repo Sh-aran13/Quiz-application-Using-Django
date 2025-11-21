@@ -272,6 +272,39 @@
             margin: 15px auto;
             font-weight: 100;
         }
+        
+        /* Password visibility styles */
+        .password-container {
+            position: relative;
+            width: 100%;
+            margin: 6px 0;
+        }
+        
+        .password-container input {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 1.3em;
+            background: #eee;
+            border: none;
+            margin: 0;
+        }
+        
+        .show-password-container {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .show-password-container input {
+            margin-right: 8px;
+            width: auto;
+        }
+        
+        .show-password-container label {
+            font-size: 1em;
+            color: #333;
+            cursor: pointer;
+        }
 
         button {
             display: block;
@@ -755,15 +788,21 @@
                 <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     <input type="text" name="username" placeholder="Username" required>
-                    <input type="password" name="password" placeholder="Password" required>
+                    <div class="password-container">
+                        <input type="password" name="password" placeholder="Password" id="loginPassword" required>
+                    </div>
+                    <div class="show-password-container">
+                        <input type="checkbox" id="showLoginPassword" onclick="togglePasswordVisibility('loginPassword', this)">
+                        <label for="showLoginPassword">Show Password</label>
+                    </div>
                     
                     <!-- CAPTCHA Section -->
                     <div class="captcha-container">
                         <div class="captcha-display">
-                            <div class="captcha-code" id="captchaCode" data-captcha="{{ captcha }}">
+                            <div style="font-size: 15px;" class="captcha-code" id="captchaCode" data-captcha="{{ captcha }}">
                             </div>
                         </div>
-                        <input type="text" name="captcha" placeholder="Enter CAPTCHA" required>
+                        <input style="font-size: 15px;" type="text" name="captcha" placeholder="Enter CAPTCHA" required>
                     </div>
                     
                     <button type="submit">Login</button>
@@ -793,8 +832,20 @@
                     <input type="text" name="phone" placeholder="Phone" required>
                     <input type="text" name="roll_number" placeholder="Roll Number" required>
                     <input type="text" name="branch" placeholder="Branch" required>
-                    <input type="password" name="password1" placeholder="Password" required>
-                    <input type="password" name="password2" placeholder="Confirm Password" required>
+                    <div class="password-container">
+                        <input type="password" name="password1" placeholder="Password" id="registerPassword1" required>
+                    </div>
+                    <div class="show-password-container">
+                        <input type="checkbox" id="showRegisterPassword1" onclick="togglePasswordVisibility('registerPassword1', this)">
+                        <label for="showRegisterPassword1">Show Password</label>
+                    </div>
+                    <div class="password-container">
+                        <input type="password" name="password2" placeholder="Confirm Password" id="registerPassword2" required>
+                    </div>
+                    <div class="show-password-container">
+                        <input type="checkbox" id="showRegisterPassword2" onclick="togglePasswordVisibility('registerPassword2', this)">
+                        <label for="showRegisterPassword2">Show Password</label>
+                    </div>
                     <button type="submit">Register</button>
 
                 </form>
@@ -1086,6 +1137,16 @@
                 messagesContainer.style.display = 'none';
             }
         });
+        
+        // Password visibility toggle function
+        function togglePasswordVisibility(inputId, checkbox) {
+            const passwordInput = document.getElementById(inputId);
+            if (checkbox.checked) {
+                passwordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
+            }
+        }
     </script>
 </body>
 </html>
