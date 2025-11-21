@@ -826,15 +826,28 @@ def submit_quiz(request, attempt_id):
 
 @login_required
 def quiz_result(request, attempt_id):
-    if request.user.role != 'student':
-        messages.error(request, 'Access denied')
-        return redirect('admin_dashboard')
+    # Allow both students (for their own results) and admins (for viewing student results)
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id)
     
-    attempt = get_object_or_404(QuizAttempt, id=attempt_id, student=request.user)
+    # Check access permissions
+    if request.user.role == 'student':
+        # Students can only view their own results
+        if attempt.student != request.user:
+            messages.error(request, 'Access denied')
+            return redirect('student_dashboard')
+    elif request.user.role == 'admin' or request.user.is_superuser:
+        # Admins can view any student's results
+        pass
+    else:
+        messages.error(request, 'Access denied')
+        return redirect('login')
     
     if not attempt.is_completed:
         messages.error(request, 'Quiz not yet completed')
-        return redirect('take_quiz', quiz_id=attempt.quiz.id)
+        if request.user.role == 'student':
+            return redirect('take_quiz', quiz_id=attempt.quiz.id)
+        else:
+            return redirect('admin_dashboard')
     
     answers = StudentAnswer.objects.filter(attempt=attempt).select_related('question')
     
@@ -906,8 +919,8 @@ def student_profile(request, student_id):
     
     student = get_object_or_404(User, id=student_id, role='student')
     
-    # Get student's quiz attempts (only completed ones for the profile view)
-    quiz_attempts = QuizAttempt.objects.filter(student=student, is_completed=True).select_related('quiz').order_by('-started_at')
+    # Get student's quiz attempts (both completed and pending ones for the profile view)
+    quiz_attempts = QuizAttempt.objects.filter(student=student).select_related('quiz').order_by('-started_at')
     
     context = {
         'student': student,
