@@ -402,7 +402,7 @@ def export_results_excel(request, quiz_id):
     attempts = QuizAttempt.objects.filter(
         quiz=quiz,
         is_completed=True
-    ).select_related('student').order_by('-score')
+    ).select_related('student').order_by('student__roll_number')
     
     # Create workbook with enhanced styling
     wb = openpyxl.Workbook()

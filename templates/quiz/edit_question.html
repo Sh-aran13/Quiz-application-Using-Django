@@ -1,4 +1,4 @@
-{% extends 'quiz/base.html' %}
+
 {% block extra_css %}
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
@@ -192,6 +192,7 @@ form {
         box-shadow 0.25s,
         background 0.25s,
         transform 0.22s;
+    text-decoration: none; /* Remove underline */
 }
 
 .btn-save {
@@ -201,15 +202,18 @@ form {
     background: linear-gradient(92deg,#4cc9f0 0%, #4361ee 100%);
     box-shadow: 0 7px 28px rgba(67,97,238,0.2);
     transform: scale(1.045);
+    text-decoration: none; /* Ensure no underline on hover */
 }
 
 .btn-back {
     background: linear-gradient(115deg,#3a0ca3 0%, #7209b7 100%);
+    text-decoration: none; /* Remove underline */
 }
 .btn-back:hover, .btn-back:focus {
     background: linear-gradient(75deg,#7209b7 40%, #3a0ca3 100%);
     box-shadow: 0 7px 28px rgba(114,9,183,0.19);
     transform: scale(1.045);
+    text-decoration: none; /* Ensure no underline on hover */
 }
 
 /* === Error Alerts === */

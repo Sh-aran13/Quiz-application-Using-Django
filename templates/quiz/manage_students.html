@@ -935,11 +935,11 @@ tbody tr:last-child td {
     <tbody>
       {% for student in students %}
       <tr>
-        <td><strong>{{ student.roll_number }}</strong></td>
-        <td>{{ student.phone }}</td>
-        <td>{{ student.username }}</td>
-        <td>{{ student.email }}</td>
-        <td>{{ student.branch|default:"Not specified" }}</td>
+        <td style="color: #2d3748;"><strong>{{ student.roll_number }}</strong></td>
+        <td style="color: #2d3748;">{{ student.phone }}</td>
+        <td style="color: #2d3748;">{{ student.username }}</td>
+        <td style="color: #2d3748;">{{ student.email }}</td>
+        <td style="color: #2d3748;">{{ student.branch|default:"Not specified" }}</td>
         <td>
           <div class="action-btns">
             <a href="{% url 'student_profile' student.id %}" class="action-btn btn-view" title="View Profile">View</a>
