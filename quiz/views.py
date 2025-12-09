@@ -775,6 +775,9 @@ def submit_quiz(request, attempt_id):
         return redirect('student_dashboard')
     
     if request.method == 'POST':
+        # Check if exam was violated
+        exam_violation = request.POST.get('exam_violation', False)
+        
         # Get questions in the correct order
         if attempt.question_order:
             # If there's a stored order, use it
@@ -793,32 +796,56 @@ def submit_quiz(request, attempt_id):
         
         score = 0
         
-        for question in questions:
-            answer_key = f'question_{question.id}'
-            selected_answer = request.POST.get(answer_key)
-            
-            # Handle unanswered questions (when selected_answer is None or empty)
-            if not selected_answer:
-                selected_answer = None
-            
-            is_correct = False
-            if selected_answer and selected_answer == question.correct_answer:
-                is_correct = True
-                score += question.marks
-            
-            StudentAnswer.objects.create(
-                attempt=attempt,
-                question=question,
-                selected_answer=selected_answer,
-                is_correct=is_correct
-            )
+        # If exam was violated, set score to zero regardless of answers
+        if exam_violation:
+            # Create student answers for all questions but with zero score
+            for question in questions:
+                answer_key = f'question_{question.id}'
+                selected_answer = request.POST.get(answer_key)
+                
+                # Handle unanswered questions (when selected_answer is None or empty)
+                if not selected_answer:
+                    selected_answer = None
+                
+                # Even if answer is correct, mark as incorrect due to violation
+                StudentAnswer.objects.create(
+                    attempt=attempt,
+                    question=question,
+                    selected_answer=selected_answer,
+                    is_correct=False  # Always mark as incorrect for violations
+                )
+        else:
+            # Normal scoring process
+            for question in questions:
+                answer_key = f'question_{question.id}'
+                selected_answer = request.POST.get(answer_key)
+                
+                # Handle unanswered questions (when selected_answer is None or empty)
+                if not selected_answer:
+                    selected_answer = None
+                
+                is_correct = False
+                if selected_answer and selected_answer == question.correct_answer:
+                    is_correct = True
+                    score += question.marks
+                
+                StudentAnswer.objects.create(
+                    attempt=attempt,
+                    question=question,
+                    selected_answer=selected_answer,
+                    is_correct=is_correct
+                )
         
         attempt.score = score
         attempt.is_completed = True
         attempt.completed_at = timezone.now()
         attempt.save()
         
-        messages.success(request, f'Quiz submitted successfully! Your score: {score}/{attempt.total_marks}')
+        # Check if exam was violated for the success message
+        if exam_violation:
+            messages.success(request, f'Quiz submitted with zero marks due to exam violations. Your score: 0/{attempt.total_marks}')
+        else:
+            messages.success(request, f'Quiz submitted successfully! Your score: {score}/{attempt.total_marks}')
         return redirect('quiz_result', attempt_id=attempt.id)
     
     return redirect('take_quiz', quiz_id=attempt.quiz.id)
@@ -922,9 +949,15 @@ def student_profile(request, student_id):
     # Get student's quiz attempts (both completed and pending ones for the profile view)
     quiz_attempts = QuizAttempt.objects.filter(student=student).select_related('quiz').order_by('-started_at')
     
+    # Calculate completed and pending attempts
+    completed_attempts = quiz_attempts.filter(is_completed=True).count()
+    pending_attempts = quiz_attempts.filter(is_completed=False).count()
+    
     context = {
         'student': student,
         'quiz_attempts': quiz_attempts,
+        'completed_attempts': completed_attempts,
+        'pending_attempts': pending_attempts,
     }
     
     return render(request, 'quiz/student_profile.html', context)
@@ -1038,6 +1071,112 @@ def export_students_excel(request):
     )
     response['Content-Disposition'] = 'attachment; filename="student_list.xlsx"'
     wb.save(response)
+    
+    return response
+
+
+@login_required
+def export_students_docx(request):
+    # Allow all users with admin role AND superusers to access admin features
+    if request.user.role != 'admin' and not request.user.is_superuser:
+        messages.error(request, 'Access denied')
+        return redirect('student_dashboard')
+    
+    # Get all students sorted by roll number in ascending order
+    students = User.objects.filter(role='student').order_by('roll_number')
+    
+    # Create DOCX document with professional styling
+    document = Document()
+    
+    # Add title with custom styling
+    title = document.add_heading('JNTU Quiz Portal - Student List Report', 0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Add subtitle with date
+    from datetime import datetime
+    subtitle = document.add_paragraph(f'Generated on: {datetime.now().strftime("%B %d, %Y at %I:%M %p")}')
+    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle.style = 'Subtitle'
+    
+    # Add a line break
+    document.add_paragraph()
+    
+    # Add table with student data
+    table = document.add_table(rows=1, cols=6)
+    table.style = 'Table Grid'
+    
+    # Set column widths - Updated with your specified values
+    column_widths = [
+        Inches(0.8),   # No.
+        Inches(1.5),   # Username
+        Inches(1.8),   # Roll Number
+        Inches(3.5),   # Email (wider)
+        Inches(1.8),   # Phone
+        Inches(2.2)    # Branch
+    ]
+    for i, width in enumerate(column_widths):
+        for cell in table.columns[i].cells:
+            cell.width = width
+    
+    # Add header row
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = 'No'
+    hdr_cells[1].text = 'Username'
+    hdr_cells[2].text = 'Roll Number'
+    hdr_cells[3].text = 'Email'
+    hdr_cells[4].text = 'Phone'
+    hdr_cells[5].text = 'Branch'
+    
+    # Style header row
+    for cell in table.rows[0].cells:
+        # Make header bold
+        for paragraph in cell.paragraphs:
+            for run in paragraph.runs:
+                run.font.bold = True
+        # Center align header
+        cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Add student data
+    for idx, student in enumerate(students, 1):
+        row_cells = table.add_row().cells
+        row_cells[0].text = str(idx)
+        row_cells[1].text = student.username
+        row_cells[2].text = student.roll_number or 'N/A'
+        row_cells[3].text = student.email
+        row_cells[4].text = student.phone
+        row_cells[5].text = student.branch or 'N/A'
+        
+        # Center align all cells
+        for cell in row_cells:
+            cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Apply professional styling to the table
+    from docx.shared import RGBColor
+    from docx.oxml.parser import OxmlElement
+    from docx.oxml.ns import qn
+    
+    # Style header row with blue background
+    for cell in table.rows[0].cells:
+        # Set background color for header
+        tc = cell._element
+        tc_pr = tc.get_or_add_tcPr()
+        shd = OxmlElement('w:shd')
+        shd.set(qn('w:fill'), '1E40AF')  # Dark blue background
+        tc_pr.append(shd)
+        
+        # Set white text color for header
+        for paragraph in cell.paragraphs:
+            for run in paragraph.runs:
+                run.font.color.rgb = RGBColor(255, 255, 255)  # White text
+    
+    # Save document to BytesIO buffer
+    buffer = BytesIO()
+    document.save(buffer)
+    buffer.seek(0)
+    
+    # Return response
+    response = HttpResponse(buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response['Content-Disposition'] = 'attachment; filename="student_list.docx"'
     
     return response
 

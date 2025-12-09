@@ -228,6 +228,10 @@ h2::after {
   background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
 
+.export-btn.docx { 
+  background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);
+}
+
 .export-btn.print { 
   background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
 }
@@ -849,7 +853,8 @@ tbody tr:last-child td {
   .export-btns, 
   .modal-overlay, 
   h2, 
-  .floating-element { 
+  .floating-element,
+  .back-dashboard-btn { 
     display: none !important;
   }
   .card { 
@@ -880,6 +885,10 @@ tbody tr:last-child td {
   }
   @page { 
     margin: 1in;
+    size: landscape;
+  }
+  table {
+    font-size: 12pt;
   }
 }
 </style>
@@ -915,6 +924,7 @@ tbody tr:last-child td {
 <div class="export-btns">
   <a href="{% url 'export_students_pdf' %}" class="export-btn pdf"><span>📄 Export PDF</span></a>
   <a href="{% url 'export_students_excel' %}" class="export-btn excel"><span>📊 Export Excel</span></a>
+  <a href="{% url 'export_students_docx' %}" class="export-btn docx"><span>📝 Export DOCX</span></a>
   <button type="button" class="export-btn print" onclick="printStudentList()"><span>🖨️ Print List</span></button>
 </div>
 
@@ -924,10 +934,10 @@ tbody tr:last-child td {
   <table>
     <thead>
       <tr>
-        <th>Roll Number</th>
-        <th>Phone</th>
         <th>Username</th>
+        <th>Roll Number</th>
         <th>Email</th>
+        <th>Phone</th>
         <th>Branch</th>
         <th>Actions</th>
       </tr>
@@ -935,10 +945,10 @@ tbody tr:last-child td {
     <tbody>
       {% for student in students %}
       <tr>
-        <td style="color: #2d3748;"><strong>{{ student.roll_number }}</strong></td>
-        <td style="color: #2d3748;">{{ student.phone }}</td>
-        <td style="color: #2d3748;">{{ student.username }}</td>
+        <td style="color: #2d3748;"><strong>{{ student.username }}</strong></td>
+        <td style="color: #2d3748;">{{ student.roll_number }}</td>
         <td style="color: #2d3748;">{{ student.email }}</td>
+        <td style="color: #2d3748;">{{ student.phone }}</td>
         <td style="color: #2d3748;">{{ student.branch|default:"Not specified" }}</td>
         <td>
           <div class="action-btns">
@@ -958,7 +968,7 @@ tbody tr:last-child td {
   {% endif %}
 </div>
 
-<div style="text-align:center;margin-top:24px;">
+<div style="text-align:center;margin-top:24px;" class="back-dashboard-btn">
   <a href="{% url 'admin_dashboard' %}" class="export-btn print" style="font-size:1em;">← Back to Dashboard</a>
 </div>
 {% endblock %}

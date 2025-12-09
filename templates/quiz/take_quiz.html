@@ -326,31 +326,42 @@
     /* Toast notifications */
     .toast {
         position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        border-radius: 12px;
+        top: 30px;
+        right: 30px;
+        padding: 25px 35px;
+        border-radius: 15px;
         color: white;
-        font-weight: 600;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        font-weight: 700;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
         z-index: 10000;
-        transform: translateX(400px);
-        transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform: translateX(500px);
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 15px;
+        font-size: 1.4rem;
+        min-width: 350px;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
     }
-    
+
     .toast.show {
         transform: translateX(0);
     }
-    
+
     .toast.success {
         background: linear-gradient(135deg, #10b981, #059669);
     }
-    
+
     .toast.error {
         background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .toast.warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        font-size: 1.5rem;
+        padding: 30px 40px;
+        min-width: 400px;
     }
     
     /* Confirmation Modal */
@@ -485,6 +496,46 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(239, 68, 68, 0.6);
     }
+    
+    /* Auto-submit toast */
+    .toast.auto-submit {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        font-size: 1.6rem;
+        padding: 35px 45px;
+        min-width: 450px;
+    }
+
+/* Warning count display */
+.warning-count-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(245, 158, 11, 0.2);
+    border: 2px solid #f59e0b;
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-weight: 700;
+    color: #f59e0b;
+    font-size: 1.1rem;
+    backdrop-filter: blur(5px);
+}
+
+.warning-count-icon {
+    font-size: 1.3rem;
+}
+
+.warning-count-number {
+    font-size: 1.3rem;
+    color: #ffffff;
+    background: #f59e0b;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 </style>
 {% endblock %}
 
@@ -497,13 +548,18 @@
 
 <!-- Toast notifications -->
 <div id="toast-success" class="toast success">
-    <span>✅</span>
+    <span style="font-size: 1.8rem;">✅</span>
     <span>Quiz submitted successfully!</span>
 </div>
 
 <div id="toast-error" class="toast error">
-    <span>❌</span>
+    <span style="font-size: 1.8rem;">❌</span>
     <span>Submission cancelled!</span>
+</div>
+
+<div id="toast-warning" class="toast warning">
+    <span style="font-size: 2rem;">⏰</span>
+    <span>Time is up! Quiz submitted automatically.</span>
 </div>
 
 <!-- Confirmation Modal for Submit -->
@@ -532,6 +588,12 @@
     </div>
 </div>
 
+<!-- Auto-submit Success Toast -->
+<div id="toast-auto-submit" class="toast auto-submit">
+    <span style="font-size: 2.5rem;">✅</span>
+    <span>Exam Auto-Submitted Due to Tab Violations</span>
+</div>
+
 <h2 style="margin-bottom: 20px; color: #2d3748; text-align: center; font-size: 2rem; animation: titleReveal 1s cubic-bezier(0.34, 1.56, 0.64, 1);">
     {{ quiz.title }}
 </h2>
@@ -543,6 +605,12 @@
         </div>
         <div id="timer" style="font-size: 1.4rem; font-weight: 800; color: #e53e3e;">
             ⏰ Time Remaining: <span id="timeDisplay">{{ quiz.time_limit }}:00</span>
+        </div>
+        <!-- Warning count display -->
+        <div class="warning-count-container">
+            <span class="warning-count-icon">⚠️</span>
+            <span>Warnings:</span>
+            <span class="warning-count-number" id="warningCountDisplay">0</span>
         </div>
         <button class="exit-btn" onclick="confirmExit()">
             <span>🚪</span>
@@ -784,11 +852,15 @@ function startTimer() {
     const timerInterval = setInterval(() => {
         if (timeRemaining <= 0) {
             clearInterval(timerInterval);
-            alert('Time is up! The quiz will be submitted automatically.');
-            const form = document.getElementById('quizForm');
-            if (form) {
-                form.submit();
-            }
+            // Show toast message when time is up
+            showToast('warning');
+            // Automatically submit the quiz after a short delay to allow the toast to be seen
+            setTimeout(() => {
+                const form = document.getElementById('quizForm');
+                if (form) {
+                    form.submit();
+                }
+            }, 3000); // Submit after 3 seconds to allow toast to be visible
         }
         
         const minutes = Math.floor(timeRemaining / 60);
@@ -854,6 +926,127 @@ function exitQuiz() {
 function showToast(type) {
     const toast = document.getElementById('toast-' + type);
     if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+}
+
+// Tab switching detection variables
+let tabSwitchCount = 0;
+let isTabActive = true;
+let tabSwitchLimit = 3;
+
+// Disable text selection and copying
+document.addEventListener('DOMContentLoaded', function() {
+    // Disable text selection on quiz content
+    const quizElements = document.querySelectorAll('.question-container, .question-container *');
+    quizElements.forEach(element => {
+        element.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        element.addEventListener('copy', function(e) {
+            e.preventDefault();
+            showToastWithMessage('warning', 'Copying is not allowed during the exam!');
+            return false;
+        });
+        
+        element.style.userSelect = 'none';
+        element.style.webkitUserSelect = 'none';
+        element.style.mozUserSelect = 'none';
+        element.style.msUserSelect = 'none';
+    });
+    
+    // Also disable copying on the entire quiz container
+    const quizContainer = document.querySelector('.card');
+    if (quizContainer) {
+        quizContainer.addEventListener('copy', function(e) {
+            e.preventDefault();
+            showToastWithMessage('warning', 'Copying is not allowed during the exam!');
+            return false;
+        });
+    }
+    
+
+});
+
+// Tab visibility API for detecting tab switches
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // User switched away from the tab
+        handleTabSwitch();
+    } else {
+        // User came back to the tab
+        isTabActive = true;
+    }
+});
+
+function handleTabSwitch() {
+    if (!isTabActive) return; // Prevent multiple triggers
+    
+    isTabActive = false;
+    tabSwitchCount++;
+    
+    // Update warning count display
+    const warningCountElement = document.getElementById('warningCount');
+    const warningCountDisplayElement = document.getElementById('warningCountDisplay');
+    if (warningCountElement) {
+        warningCountElement.textContent = tabSwitchCount;
+    }
+    if (warningCountDisplayElement) {
+        warningCountDisplayElement.textContent = tabSwitchCount;
+    }
+    
+    // Show warning toast instead of modal
+    showToastWithMessage('warning', `Tab switching detected! Warning ${tabSwitchCount}/3`);
+    
+    // If this is the 4th violation, auto-submit
+    if (tabSwitchCount >= tabSwitchLimit) {
+        // Auto-submit the quiz
+        setTimeout(autoSubmitQuiz, 3000);
+    } else {
+        // Reset tab active status after a delay so another warning can be triggered
+        setTimeout(() => {
+            isTabActive = true;
+        }, 2000);
+    }
+}
+
+function autoSubmitQuiz() {
+    // Show auto-submit toast
+    showToast('auto-submit');
+    
+    // Submit the quiz after a delay to show the toast
+    setTimeout(function() {
+        const form = document.getElementById('quizForm');
+        if (form) {
+            // Add a hidden field to indicate exam violation
+            const violationInput = document.createElement('input');
+            violationInput.type = 'hidden';
+            violationInput.name = 'exam_violation';
+            violationInput.value = 'true';
+            form.appendChild(violationInput);
+            
+            // Submit the form
+            form.submit();
+        }
+    }, 3000);
+}
+
+// Enhanced toast function to support custom messages
+function showToastWithMessage(type, message) {
+    const toast = document.getElementById('toast-' + type);
+    if (toast) {
+        // Update message if provided
+        if (message) {
+            const span = toast.querySelector('span:last-child');
+            if (span) {
+                span.textContent = message;
+            }
+        }
         toast.classList.add('show');
         setTimeout(() => {
             toast.classList.remove('show');

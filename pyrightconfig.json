@@ -20,5 +20,6 @@
     "reportIncompatibleMethodOverride": false,
     "reportImplicitOverride": false,
     "reportIncompatibleVariableOverride": false,
-    "reportExpressionType": false
+    "reportExpressionType": false,
+    "reportMissingTypeArgument": false
 }
