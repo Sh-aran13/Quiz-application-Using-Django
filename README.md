@@ -45,9 +45,9 @@ Download and install PostgreSQL from https://www.postgresql.org/download/
 Open PostgreSQL command line (psql) or pgAdmin and create a database:
 
 ```sql
-CREATE DATABASE quiz_db;
+CREATE DATABASE quizesdb;
 CREATE USER postgres WITH PASSWORD 'postgres';
-GRANT ALL PRIVILEGES ON DATABASE quiz_db TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE quizesdb TO postgres;
 ```
 
 **Note:** Update the database credentials in `quiz_project/settings.py` if you use different username/password.
