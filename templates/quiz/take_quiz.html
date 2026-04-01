@@ -1,41 +1,40 @@
-{% extends 'quiz/base.html' %}
-
-{% block title %}Take Quiz - {{ quiz.title }}{% endblock %}
-
 {% block extra_css %}
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
-    
+
     * {
         font-family: 'Inter', sans-serif;
+        box-sizing: border-box;
     }
-    
+
     body {
         font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: radial-gradient(circle at top, #0f172a 0%, #020617 40%, #000 100%);
         min-height: 100vh;
         position: relative;
         overflow-x: hidden;
+        color: #e5e7eb;
     }
-    
+
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Playfair Display', serif;
     }
-    
-    /* Animated gradient background */
+
+    /* Cosmic animated background */
     .animated-bg {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-        background-size: 400% 400%;
-        animation: gradientShift 15s ease infinite;
+        inset: 0;
+        z-index: -3;
+        background: radial-gradient(circle at 10% 20%, rgba(96, 165, 250, 0.25), transparent 60%),
+                    radial-gradient(circle at 80% 0%, rgba(244, 114, 182, 0.25), transparent 55%),
+                    radial-gradient(circle at 20% 90%, rgba(34, 197, 94, 0.2), transparent 55%),
+                    radial-gradient(circle at 90% 70%, rgba(234, 179, 8, 0.18), transparent 55%),
+                    radial-gradient(circle at 50% 50%, #020617, #000);
+        background-size: 200% 200%;
+        animation: nebulaShift 40s ease-in-out infinite;
     }
-    
-    @keyframes gradientShift {
+
+    @keyframes nebulaShift {
         0%, 100% {
             background-position: 0% 50%;
         }
@@ -43,92 +42,137 @@
             background-position: 100% 50%;
         }
     }
-    
-    /* Floating shapes */
+
+    /* Twinkling star layers */
+    .stars,
+    .stars2,
+    .stars3 {
+        position: fixed;
+        inset: 0;
+        background-repeat: repeat;
+        background-size: contain;
+        z-index: -2;
+        pointer-events: none;
+    }
+
+    .stars {
+        background-image:
+            radial-gradient(2px 2px at 20% 20%, rgba(255,255,255,0.7) 0, transparent 60%),
+            radial-gradient(1.5px 1.5px at 70% 40%, rgba(255,255,255,0.6) 0, transparent 60%),
+            radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,0.5) 0, transparent 60%);
+        animation: twinkle 22s linear infinite;
+        opacity: 0.8;
+    }
+
+    .stars2 {
+        background-image:
+            radial-gradient(1.5px 1.5px at 10% 70%, rgba(255,255,255,0.6) 0, transparent 60%),
+            radial-gradient(2px 2px at 80% 20%, rgba(255,255,255,0.5) 0, transparent 60%);
+        animation: twinkle 30s linear infinite reverse;
+        opacity: 0.5;
+    }
+
+    .stars3 {
+        background-image:
+            radial-gradient(1px 1px at 30% 30%, rgba(255,255,255,0.5) 0, transparent 60%),
+            radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.5) 0, transparent 60%);
+        animation: twinkle 40s linear infinite;
+        opacity: 0.35;
+    }
+
+    @keyframes twinkle {
+        0% { transform: translate3d(0,0,0); opacity: 0.6; }
+        25% { opacity: 1; }
+        50% { transform: translate3d(-50px, 25px, 0); opacity: 0.4; }
+        75% { opacity: 0.9; }
+        100% { transform: translate3d(50px, -25px, 0); opacity: 0.6; }
+    }
+
+    /* Floating nebula blobs */
     .floating-shape {
         position: fixed;
         border-radius: 50%;
-        opacity: 0.15;
+        opacity: 0.12;
+        filter: blur(8px);
         animation: float 20s infinite ease-in-out;
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85), transparent 60%);
+        z-index: -1;
     }
-    
+
     .shape-1 {
-        width: 100px;
-        height: 100px;
-        background: white;
-        top: 10%;
-        left: 10%;
+        width: 200px;
+        height: 200px;
+        top: 8%;
+        left: 8%;
         animation-delay: 0s;
     }
-    
+
     .shape-2 {
-        width: 80px;
-        height: 80px;
-        background: white;
+        width: 160px;
+        height: 160px;
         top: 60%;
-        right: 15%;
+        right: 10%;
         animation-delay: 3s;
     }
-    
+
     .shape-3 {
-        width: 60px;
-        height: 60px;
-        background: white;
-        bottom: 20%;
+        width: 140px;
+        height: 140px;
+        bottom: 18%;
         left: 30%;
         animation-delay: 6s;
     }
-    
+
     @keyframes float {
         0%, 100% {
-            transform: translateY(0) rotate(0deg);
+            transform: translate3d(0, 0, 0) scale(1);
         }
         50% {
-            transform: translateY(-30px) rotate(180deg);
+            transform: translate3d(0, -30px, 0) scale(1.05);
         }
     }
-    
-    /* Enhanced card styling */
+
+    /* Glassmorphism quiz card – increased size */
     .card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border-radius: 25px;
-        padding: 35px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.22), transparent 55%),
+                    radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.15), transparent 55%),
+                    rgba(15, 23, 42, 0.78);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+        border-radius: 28px;
+        padding: 40px;              /* increased padding */
+        max-width: 1100px;          /* increased width */
+        width: 95%;
+        margin: 24px auto 70px auto;/* slightly more vertical space */
+        box-shadow:
+            0 22px 70px rgba(15, 23, 42, 0.85),
+            0 0 0 1px rgba(148, 163, 184, 0.35);
+        border: 1px solid rgba(148, 163, 184, 0.45);
         position: relative;
         overflow: hidden;
         animation: cardReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    
+
     .card::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(102, 126, 234, 0.15),
-            transparent
-        );
-        animation: shimmer 3s infinite;
+        inset: -40%;
+        background:
+            conic-gradient(from 140deg, rgba(56, 189, 248, 0.28), transparent 40%, rgba(236, 72, 153, 0.32), transparent 70%, rgba(52, 211, 153, 0.32));
+        opacity: 0.16;
+        animation: shimmer 12s linear infinite;
+        pointer-events: none;
     }
-    
+
     @keyframes shimmer {
-        0% {
-            left: -100%;
-        }
-        100% {
-            left: 100%;
-        }
+        0% { transform: translate3d(-10%, -10%, 0) rotate(0deg); }
+        50% { transform: translate3d(10%, 10%, 0) rotate(180deg); }
+        100% { transform: translate3d(-10%, -10%, 0) rotate(360deg); }
     }
-    
+
     @keyframes cardReveal {
         from {
-            transform: translateY(30px) scale(0.95);
+            transform: translateY(30px) scale(0.96);
             opacity: 0;
         }
         to {
@@ -136,277 +180,446 @@
             opacity: 1;
         }
     }
-    
-    /* Enhanced question container animations */
+
+    /* Question container animations */
     .question-container {
         display: none;
-        animation: fadeIn 0.5s ease-out;
+        animation: fadeIn 0.45s ease-out;
     }
-    
+
     .question-container.active {
         display: block;
     }
-    
+
     @keyframes fadeIn {
         from {
             opacity: 0;
-            transform: translateX(20px);
+            transform: translateX(22px);
         }
         to {
             opacity: 1;
             transform: translateX(0);
         }
     }
-    
-    /* Show first question by default as fallback */
+
     .question-container:first-child {
         display: block;
     }
-    
-    .navigation-buttons {
+
+    /* Top info row */
+    .quiz-header-row {
         display: flex;
         justify-content: space-between;
-        margin-top: 30px;
-        gap: 15px;
+        align-items: center;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        gap: 12px;
     }
-    
-    .option-label {
-        display: block;
-        padding: 20px;
-        margin-bottom: 15px;
-        border: 2px solid transparent;
-        border-radius: 12px;
+
+    .quiz-meta {
+        font-size: 0.98rem;
+        font-weight: 600;
+        color: #cbd5f5;
+    }
+
+    #timer {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #f97373;
+        text-shadow: 0 2px 10px rgba(248, 113, 113, 0.35);
+        animation: pulse 2s infinite;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+
+    /* Exit button – gradient, pill */
+    .exit-btn {
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 999px;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        background: #f8fafc;
-        position: relative;
-        overflow: hidden;
+        transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 8px 22px rgba(248, 113, 113, 0.6);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: 0.02em;
+        font-size: 0.96rem;
+        outline: none;
     }
-    
+
+    .exit-btn:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 12px 30px rgba(248, 113, 113, 0.85);
+    }
+
+    .exit-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 8px 20px rgba(248, 113, 113, 0.7);
+    }
+
+    /* Warning pill */
+    .warning-count-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(245, 158, 11, 0.18);
+        border: 2px solid rgba(245, 158, 11, 0.9);
+        border-radius: 999px;
+        padding: 6px 16px;
+        font-weight: 700;
+        color: #fbbf24;
+        font-size: 0.96rem;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+    }
+
+    .warning-count-icon {
+        font-size: 1.1rem;
+    }
+
+    .warning-count-number {
+        font-size: 1rem;
+        color: #0b1120;
+        background: #fbbf24;
+        border-radius: 999px;
+        min-width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Question header */
+    .question-title {
+        margin-bottom: 12px;
+        color: #e5e7eb;
+        font-size: 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+
+    .question-counter {
+        font-size: 0.95rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .question-text {
+        font-size: 1.08rem;
+        margin-bottom: 22px;
+        color: #e2e8f0;
+        line-height: 1.6;
+    }
+
+    /* Option grid + badges */
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    @media (max-width: 768px) {
+        .options-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .option-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        position: relative;
+        padding: 14px 16px 14px 14px;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.84));
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+        overflow: hidden;
+        color: #e5e7eb;
+    }
+
     .option-label::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        inset: 0;
+        background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.35), transparent 60%),
+                    radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.26), transparent 60%);
         opacity: 0;
         transition: opacity 0.3s ease;
+        pointer-events: none;
     }
-    
+
+    .option-radio {
+        margin-top: 2px;
+        transform: scale(1.2);
+        accent-color: #6366f1;
+        flex-shrink: 0;
+    }
+
+    .option-badge {
+        flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.9rem;
+        background: radial-gradient(circle at top, #6366f1, #4f46e5);
+        color: #e5e7eb;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.7);
+    }
+
+    .option-content {
+        flex: 1;
+        font-size: 0.98rem;
+    }
+
     .option-label:hover {
         transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border-color: #667eea;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
+        border-color: rgba(129, 140, 248, 0.8);
     }
-    
+
     .option-label:hover::before {
-        opacity: 1;
+        opacity: 0.8;
     }
-    
-    .option-label input[type="radio"] {
-        margin-right: 15px;
-        transform: scale(1.3);
-        accent-color: #667eea;
-    }
-    
+
     .option-label.selected {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-        border-color: #667eea;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.28), rgba(56, 189, 248, 0.24));
+        border-color: rgba(129, 140, 248, 0.95);
+        box-shadow: 0 16px 40px rgba(79, 70, 229, 0.9);
     }
-    
+
+    /* Circular question navigation dots */
     .question-nav {
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 25px;
+        gap: 10px;
+        margin-bottom: 20px;
         justify-content: center;
     }
-    
+
     .question-nav button {
-        width: 45px;
-        height: 45px;
-        border: 2px solid #cbd5e0;
-        background: white;
-        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.75);
+        background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.88));
         cursor: pointer;
-        font-weight: bold;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        font-weight: 700;
+        color: #cbd5f5;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.9);
         position: relative;
-        overflow: hidden;
+        outline: none;
     }
-    
+
     .question-nav button::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.5), transparent 55%);
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.25s ease;
+        pointer-events: none;
     }
-    
+
     .question-nav button:hover {
-        transform: translateY(-3px) scale(1.1);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px) scale(1.06);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.98);
     }
-    
+
     .question-nav button:hover::before {
         opacity: 1;
     }
-    
+
     .question-nav button.answered {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-        border-color: #059669;
+        background: radial-gradient(circle at top, #22c55e, #15803d);
+        color: #ecfdf5;
+        border-color: #22c55e;
+        box-shadow: 0 10px 24px rgba(34, 197, 94, 0.8);
     }
-    
+
     .question-nav button.unanswered {
-        background: linear-gradient(135deg, #94a3b8, #64748b);
-        color: white;
-        border-color: #64748b;
+        background: radial-gradient(circle at top, #6b7280, #4b5563);
+        color: #f9fafb;
+        border-color: #4b5563;
     }
-    
+
     .question-nav button.current {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border-color: #667eea;
-        transform: scale(1.15);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        background: radial-gradient(circle at top, #6366f1, #4f46e5);
+        color: #eef2ff;
+        border-color: #6366f1;
+        transform: scale(1.08);
+        box-shadow: 0 14px 32px rgba(79, 70, 229, 0.95);
     }
-    
-    /* Timer styling */
-    #timer {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: #e53e3e;
-        text-shadow: 0 2px 10px rgba(229, 62, 62, 0.3);
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-    }
-    
-    /* Exit button styling */
-    .exit-btn {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 50px;
+
+    /* Gradient buttons (Next, Prev, Clear, Submit) */
+    .btn {
+        border-radius: 999px !important;
         font-weight: 700;
+        padding: 9px 20px;
+        font-size: 0.95rem;
+        border: none;
+        outline: none;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #0ea5e9);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        color: white;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #f97316, #facc15);
+        color: #0b1120;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.96);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 9px 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .navigation-buttons {
         display: flex;
-        align-items: center;
-        gap: 8px;
+        justify-content: space-between;
+        margin-top: 18px;
+        gap: 12px;
+        flex-wrap: wrap;
     }
-    
-    .exit-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6);
+
+    .navigation-buttons-left {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
     }
-    
-    .exit-btn:active {
-        transform: translateY(-1px);
-    }
-    
-    /* Toast notifications */
+
+    /* Toast notifications container & styles */
     .toast {
         position: fixed;
-        top: 30px;
-        right: 30px;
-        padding: 25px 35px;
-        border-radius: 15px;
+        top: 24px;
+        right: 24px;
+        padding: 18px 24px;
+        border-radius: 18px;
         color: white;
         font-weight: 700;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
         z-index: 10000;
-        transform: translateX(500px);
-        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        display: flex;
+        transform: translateX(520px);
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        display: inline-flex;
         align-items: center;
-        gap: 15px;
-        font-size: 1.4rem;
-        min-width: 350px;
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        gap: 12px;
+        font-size: 1.05rem;
+        min-width: 320px;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(248, 250, 252, 0.15);
+        opacity: 0;
     }
 
     .toast.show {
         transform: translateX(0);
+        opacity: 1;
     }
 
     .toast.success {
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: linear-gradient(135deg, #22c55e, #16a34a);
     }
 
     .toast.error {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
     }
 
     .toast.warning {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        font-size: 1.5rem;
-        padding: 30px 40px;
-        min-width: 400px;
+        background: linear-gradient(135deg, #f97316, #facc15);
+        color: #111827;
     }
-    
-    /* Confirmation Modal */
+
+    .toast.auto-submit {
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        font-size: 1.12rem;
+        padding: 22px 26px;
+        min-width: 360px;
+    }
+
+    /* Confirmation Modal – glass, centered */
     .modal-overlay {
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(5px);
+        inset: 0;
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         z-index: 9999;
         animation: fadeInModal 0.3s ease-out;
-    }
-    
-    .modal-overlay.active {
-        display: flex;
         align-items: center;
         justify-content: center;
     }
-    
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
     @keyframes fadeInModal {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
-    
+
     .modal-content {
-        background: white;
-        border-radius: 20px;
-        padding: 40px;
-        max-width: 450px;
-        width: 90%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.35), transparent 55%),
+                    radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.3), transparent 55%),
+                    rgba(15, 23, 42, 0.94);
+        border-radius: 22px;
+        padding: 32px 26px 26px 26px;
+        max-width: 420px;
+        width: 92%;
+        box-shadow: 0 26px 70px rgba(15, 23, 42, 0.95);
+        animation: modalSlideIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
         text-align: center;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        position: relative;
+        overflow: hidden;
     }
-    
+
     @keyframes modalSlideIn {
         from {
-            transform: scale(0.7) translateY(-50px);
+            transform: scale(0.85) translateY(-40px);
             opacity: 0;
         }
         to {
@@ -414,152 +627,201 @@
             opacity: 1;
         }
     }
-    
+
     .modal-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
-        animation: iconBounceModal 1s infinite;
+        font-size: 3rem;
+        margin-bottom: 12px;
+        animation: iconBounceModal 1.3s infinite;
     }
-    
+
     @keyframes iconBounceModal {
-        0%, 100% {
-            transform: translateY(0);
-        }
-        50% {
-            transform: translateY(-10px);
-        }
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-7px); }
     }
-    
+
     .modal-title {
-        font-size: 1.8rem;
+        font-size: 1.4rem;
         font-weight: 700;
-        color: #2d3748;
-        margin-bottom: 15px;
+        color: #e5e7eb;
+        margin-bottom: 8px;
         font-family: 'Playfair Display', serif;
     }
-    
+
     .modal-message {
-        font-size: 1.1rem;
-        color: #718096;
-        margin-bottom: 30px;
+        font-size: 0.98rem;
+        color: #cbd5f5;
+        margin-bottom: 22px;
         line-height: 1.6;
     }
-    
+
     .modal-buttons {
         display: flex;
-        gap: 15px;
+        gap: 12px;
         justify-content: center;
+        flex-wrap: wrap;
     }
-    
+
     .modal-btn {
-        padding: 12px 30px;
+        padding: 9px 22px;
         border: none;
-        border-radius: 50px;
-        font-size: 1rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
         font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.24s ease;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.04em;
         font-family: 'Inter', sans-serif;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
+        color: white;
     }
-    
+
     .modal-btn-confirm {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        color: white;
-        box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        background: linear-gradient(135deg, #22c55e, #16a34a);
     }
-    
-    .modal-btn-confirm:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(17, 153, 142, 0.6);
-    }
-    
+
     .modal-btn-cancel {
-        background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
-        color: white;
-        box-shadow: 0 5px 15px rgba(113, 128, 150, 0.4);
+        background: linear-gradient(135deg, #6b7280, #4b5563);
     }
-    
-    .modal-btn-cancel:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(113, 128, 150, 0.6);
-    }
-    
+
     .modal-btn-exit {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+    }
+
+    .modal-btn:hover {
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.98);
+    }
+
+    .modal-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.9);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+        .card {
+            margin: 16px 12px 40px 12px;
+            padding: 18px 16px;
+        }
+        #timer {
+            font-size: 1.05rem;
+        }
+        .question-title {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+    }
+
+    /* Extra reveal animations used in JS */
+    @keyframes titleReveal {
+        from {
+            transform: translateY(-24px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes questionReveal {
+        from {
+            transform: translateX(-18px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes textReveal {
+        from {
+            transform: translateY(16px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Fullscreen overlay for anti-cheating */
+    .fullscreen-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         color: white;
-        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        font-size: 2rem;
+        text-align: center;
+        display: none;
     }
     
-    .modal-btn-exit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.6);
+    .fullscreen-overlay.active {
+        display: flex;
     }
     
-    /* Auto-submit toast */
-    .toast.auto-submit {
-        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-        font-size: 1.6rem;
-        padding: 35px 45px;
-        min-width: 450px;
+    .fullscreen-overlay h2 {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: #ef4444;
     }
-
-/* Warning count display */
-.warning-count-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(245, 158, 11, 0.2);
-    border: 2px solid #f59e0b;
-    border-radius: 50px;
-    padding: 8px 20px;
-    font-weight: 700;
-    color: #f59e0b;
-    font-size: 1.1rem;
-    backdrop-filter: blur(5px);
-}
-
-.warning-count-icon {
-    font-size: 1.3rem;
-}
-
-.warning-count-number {
-    font-size: 1.3rem;
-    color: #ffffff;
-    background: #f59e0b;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
+    
+    .fullscreen-overlay p {
+        font-size: 1.5rem;
+        margin: 10px 0;
+        max-width: 80%;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Animated background -->
+<!-- Cosmic animated background -->
 <div class="animated-bg"></div>
+<div class="stars"></div>
+<div class="stars2"></div>
+<div class="stars3"></div>
 <div class="floating-shape shape-1"></div>
 <div class="floating-shape shape-2"></div>
 <div class="floating-shape shape-3"></div>
 
+<!-- Fullscreen overlay for anti-cheating -->
+<div class="fullscreen-overlay" id="fullscreenOverlay">
+    <h2>⚠️ EXAM VIOLATION LIMIT REACHED (3/3)</h2>
+    <p>You have violated exam rules 3 times by switching applications or using forbidden actions.</p>
+    <p>Your exam will be automatically submitted with <strong>ZERO MARKS</strong>.</p>
+</div>
+
 <!-- Toast notifications -->
 <div id="toast-success" class="toast success">
-    <span style="font-size: 1.8rem;">✅</span>
+    <span style="font-size: 1.6rem;">✅</span>
     <span>Quiz submitted successfully!</span>
 </div>
 
 <div id="toast-error" class="toast error">
-    <span style="font-size: 1.8rem;">❌</span>
+    <span style="font-size: 1.6rem;">❌</span>
     <span>Submission cancelled!</span>
 </div>
 
 <div id="toast-warning" class="toast warning">
-    <span style="font-size: 2rem;">⏰</span>
+    <span style="font-size: 1.9rem;">⏰</span>
     <span>Time is up! Quiz submitted automatically.</span>
+</div>
+
+<!-- Auto-submit Success Toast -->
+<div id="toast-auto-submit" class="toast auto-submit">
+    <span style="font-size: 2.1rem;">✅</span>
+    <span>Exam auto-submitted due to tab violations.</span>
 </div>
 
 <!-- Confirmation Modal for Submit -->
@@ -567,7 +829,10 @@
     <div class="modal-content">
         <div class="modal-icon">❓</div>
         <div class="modal-title">Confirm Submission</div>
-        <div class="modal-message">Are you sure you want to submit this quiz?<br>You cannot change your answers after submission.</div>
+        <div class="modal-message">
+            Are you sure you want to submit this quiz?<br>
+            You cannot change your answers after submission.
+        </div>
         <div class="modal-buttons">
             <button class="modal-btn modal-btn-confirm" onclick="submitQuiz()">Yes, Submit</button>
             <button class="modal-btn modal-btn-cancel" onclick="closeConfirmModal()">Cancel</button>
@@ -580,7 +845,10 @@
     <div class="modal-content">
         <div class="modal-icon">🚪</div>
         <div class="modal-title">Exit Quiz</div>
-        <div class="modal-message">Are you sure you want to exit the quiz?<br>This will submit your current answers.</div>
+        <div class="modal-message">
+            Are you sure you want to exit the quiz?<br>
+            This will submit your current answers.
+        </div>
         <div class="modal-buttons">
             <button class="modal-btn modal-btn-exit" onclick="exitQuiz()">Yes, Exit</button>
             <button class="modal-btn modal-btn-cancel" onclick="closeExitModal()">Cancel</button>
@@ -588,83 +856,92 @@
     </div>
 </div>
 
-<!-- Auto-submit Success Toast -->
-<div id="toast-auto-submit" class="toast auto-submit">
-    <span style="font-size: 2.5rem;">✅</span>
-    <span>Exam Auto-Submitted Due to Tab Violations</span>
-</div>
-
-<h2 style="margin-bottom: 20px; color: #2d3748; text-align: center; font-size: 2rem; animation: titleReveal 1s cubic-bezier(0.34, 1.56, 0.64, 1);">
+<h2 style="margin: 18px 0 10px 0; color: #e5e7eb; text-align: center; font-size: 2rem; animation: titleReveal 1s cubic-bezier(0.34, 1.56, 0.64, 1);">
     {{ quiz.title }}
 </h2>
 
 <div class="card">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-        <div style="font-size: 1.1rem; font-weight: 600; color: #4a5568;">
+    <div class="quiz-header-row">
+        <div class="quiz-meta">
             <strong>⏱️ Time Limit:</strong> {{ quiz.time_limit }} minutes
         </div>
-        <div id="timer" style="font-size: 1.4rem; font-weight: 800; color: #e53e3e;">
-            ⏰ Time Remaining: <span id="timeDisplay">{{ quiz.time_limit }}:00</span>
+        <div id="timer">
+            <span>⏰</span>
+            <span>Time Remaining: <span id="timeDisplay">{{ quiz.time_limit }}:00</span></span>
         </div>
-        <!-- Warning count display -->
         <div class="warning-count-container">
             <span class="warning-count-icon">⚠️</span>
             <span>Warnings:</span>
             <span class="warning-count-number" id="warningCountDisplay">0</span>
         </div>
-        <button class="exit-btn" onclick="confirmExit()">
+        <button class="exit-btn" type="button" onclick="confirmExit()">
             <span>🚪</span>
             <span>Exit Quiz</span>
         </button>
     </div>
-    
+
+    <div style="text-align: center; margin: 10px 0; color: #ef4444; font-weight: bold; font-size: 1.1rem;">
+        ⚠️ Exam Violations: <span id="warningCountDisplay">0</span>/3
+    </div>
     <div class="question-nav" id="questionNav"></div>
-    
+
     <form method="post" action="{% url 'submit_quiz' attempt.id %}" id="quizForm">
         {% csrf_token %}
-        
+
         {% for question in questions %}
         <div class="question-container{% if forloop.first %} active{% endif %}" id="question-{{ question.id }}" data-question-id="{{ question.id }}">
-            <h3 style="margin-bottom: 20px; color: #2d3748; font-size: 1.5rem; animation: questionReveal 0.6s ease-out;">
-                Question {{ forloop.counter }}  {{ questions.count }}
-            </h3>
-            <p style="font-size: 1.2rem; margin-bottom: 25px; color: #374151; line-height: 1.6; animation: textReveal 0.8s ease-out;">
+            <div class="question-title">
+                <span>Question {{ forloop.counter }}</span>
+            </div>
+            <p class="question-text">
                 {{ question.question_text }}
             </p>
-            
-            <div>
+
+            <div class="options-grid">
                 <label class="option-label">
-                    <input type="radio" name="question_{{ question.id }}" value="A">
-                    <strong>A.</strong> {{ question.option_a }}
+                    <input class="option-radio" type="radio" name="question_{{ question.id }}" value="A">
+                    <div class="option-badge">A</div>
+                    <div class="option-content">
+                        {{ question.option_a }}
+                    </div>
                 </label>
-                
+
                 <label class="option-label">
-                    <input type="radio" name="question_{{ question.id }}" value="B">
-                    <strong>B.</strong> {{ question.option_b }}
+                    <input class="option-radio" type="radio" name="question_{{ question.id }}" value="B">
+                    <div class="option-badge">B</div>
+                    <div class="option-content">
+                        {{ question.option_b }}
+                    </div>
                 </label>
-                
+
                 <label class="option-label">
-                    <input type="radio" name="question_{{ question.id }}" value="C">
-                    <strong>C.</strong> {{ question.option_c }}
+                    <input class="option-radio" type="radio" name="question_{{ question.id }}" value="C">
+                    <div class="option-badge">C</div>
+                    <div class="option-content">
+                        {{ question.option_c }}
+                    </div>
                 </label>
-                
+
                 <label class="option-label">
-                    <input type="radio" name="question_{{ question.id }}" value="D">
-                    <strong>D.</strong> {{ question.option_d }}
+                    <input class="option-radio" type="radio" name="question_{{ question.id }}" value="D">
+                    <div class="option-badge">D</div>
+                    <div class="option-content">
+                        {{ question.option_d }}
+                    </div>
                 </label>
             </div>
-            
+
             <div class="navigation-buttons">
-                <div style="display: flex; gap: 10px;">
+                <div class="navigation-buttons-left">
                     <button type="button" class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn-{{ question.id }}">
                         ← Previous
                     </button>
-                    
+
                     <button type="button" class="btn btn-warning" onclick="clearResponse({{ question.id }})" id="clearBtn-{{ question.id }}">
                         🧹 Clear Response
                     </button>
                 </div>
-                
+
                 {% if forloop.last %}
                 <button type="button" class="btn btn-success" onclick="confirmSubmit()">
                     ✅ Submit Quiz
@@ -679,7 +956,6 @@
         {% endfor %}
     </form>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -690,7 +966,7 @@ let questionIds = [];
 questionIds.push({{ question.id }});
 {% endfor %}
 
-// If no questions were added via template, try to extract from DOM
+// Fallback if template loop does not populate
 if (questionIds.length === 0) {
     document.querySelectorAll('.question-container').forEach(container => {
         const questionId = container.id.replace('question-', '');
@@ -702,81 +978,97 @@ if (questionIds.length === 0) {
 
 let currentQuestionIndex = 0;
 const totalQuestions = questionIds.length;
-let timeRemaining = {{ quiz.time_limit }} * 60; // in seconds
+let timeRemaining = {{ quiz.time_limit }} * 60; // seconds
+
+// Anti-cheating variables
+let tabSwitchCount = 0;
+let fullscreenViolationCount = 0;
+const tabSwitchLimit = 3;
+let isFullscreen = false;
+let fullscreenCheckInterval;
+let lastViolationTime = 0;
+const violationCooldownMs = 1000; // 1 second cooldown to prevent rapid increments
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    // Make sure we have questions before initializing
     if (questionIds.length > 0) {
         showQuestionByIndex(0);
         updateQuestionNav();
         startTimer();
     }
-    
-    // Add event listeners to all radio buttons
+
+    // Add event listeners to radio buttons
     const radios = document.querySelectorAll('input[type="radio"]');
     radios.forEach(radio => {
         radio.addEventListener('change', function() {
-            // Add selected class to parent label
-            document.querySelectorAll('.option-label').forEach(label => {
+            const container = this.closest('.question-container');
+            if (!container) return;
+            container.querySelectorAll('.option-label').forEach(label => {
                 label.classList.remove('selected');
             });
-            
             if (this.checked) {
                 this.closest('.option-label').classList.add('selected');
             }
-            
             updateQuestionNav();
         });
     });
-    
-    // Add selected class to already checked radio buttons
-    document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-        radio.closest('.option-label').classList.add('selected');
-    });
-});
 
-function showQuestionByIndex(index) {
-    // Validate index
-    if (index < 0 || index >= questionIds.length) {
-        return;
+    // Mark pre-checked (if any)
+    document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+        const lbl = radio.closest('.option-label');
+        if (lbl) lbl.classList.add('selected');
+    });
+
+    // Disable selection & copy inside quiz
+    const quizContainer = document.querySelector('.card');
+    if (quizContainer) {
+        quizContainer.addEventListener('copy', function(e) {
+            e.preventDefault();
+            showToastWithMessage('warning', 'Copying is not allowed during the exam!');
+        });
+        quizContainer.style.userSelect = 'none';
+        quizContainer.style.webkitUserSelect = 'none';
+        quizContainer.style.mozUserSelect = 'none';
+        quizContainer.style.msUserSelect = 'none';
     }
     
-    // Hide all questions
+    // Initialize anti-cheating measures
+    initAntiCheating();
+});
+
+// Show question by index
+function showQuestionByIndex(index) {
+    if (index < 0 || index >= questionIds.length) return;
+
     document.querySelectorAll('.question-container').forEach(q => {
         q.classList.remove('active');
     });
-    
-    // Show current question
+
     const questionId = questionIds[index];
     const questionDiv = document.getElementById('question-' + questionId);
-    
+
     if (questionDiv) {
         questionDiv.classList.add('active');
         currentQuestionIndex = index;
         updateQuestionNav();
-        
-        // Add animation to question elements
-        const questionTitle = questionDiv.querySelector('h3');
-        const questionText = questionDiv.querySelector('p');
+
+        const questionTitle = questionDiv.querySelector('.question-title');
+        const questionText = questionDiv.querySelector('.question-text');
         const options = questionDiv.querySelectorAll('.option-label');
-        
+
         if (questionTitle) questionTitle.style.animation = 'none';
         if (questionText) questionText.style.animation = 'none';
         options.forEach(option => option.style.animation = 'none');
-        
-        // Trigger reflow
-        void questionTitle.offsetWidth;
-        void questionText.offsetWidth;
+
+        // trigger reflow
+        if (questionTitle) void questionTitle.offsetWidth;
+        if (questionText) void questionText.offsetWidth;
         options.forEach(option => void option.offsetWidth);
-        
-        // Reapply animations
+
         if (questionTitle) questionTitle.style.animation = 'questionReveal 0.6s ease-out';
         if (questionText) questionText.style.animation = 'textReveal 0.8s ease-out';
         options.forEach((option, i) => {
-            option.style.animation = 'none';
-            void option.offsetWidth;
-            option.style.animation = `fadeIn 0.5s ease-out ${i * 0.1}s both`;
+            option.style.animation = 'fadeIn 0.5s ease-out ' + (i * 0.04) + 's both';
         });
     }
 }
@@ -794,92 +1086,90 @@ function previousQuestion() {
 }
 
 function clearResponse(questionId) {
-    // Clear the selected radio button for the current question
-    const questionDiv = document.querySelector(`.question-container.active`);
-    const radios = questionDiv.querySelectorAll('input[type="radio"]');
+    const container = document.getElementById('question-' + questionId);
+    if (!container) return;
+
+    const radios = container.querySelectorAll('input[type="radio"]');
     radios.forEach(radio => {
         radio.checked = false;
     });
-    
-    // Remove selected class from labels
-    const labels = questionDiv.querySelectorAll('.option-label');
-    labels.forEach(label => {
+
+    container.querySelectorAll('.option-label').forEach(label => {
         label.classList.remove('selected');
     });
-    
-    // Update the navigation buttons to reflect the cleared response
+
     updateQuestionNav();
 }
 
 function updateQuestionNav() {
     const navDiv = document.getElementById('questionNav');
-    if (!navDiv) return; // Safety check
-    
+    if (!navDiv) return;
+
     navDiv.innerHTML = '';
-    
+
     for (let i = 0; i < totalQuestions; i++) {
         const questionId = questionIds[i];
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.textContent = i + 1;
         btn.onclick = () => showQuestionByIndex(i);
-        
-        // Check if question is answered
+
         const questionDiv = document.getElementById('question-' + questionId);
+        let isAnswered = false;
         if (questionDiv) {
             const radios = questionDiv.querySelectorAll('input[type="radio"]');
-            let isAnswered = false;
-            radios.forEach(radio => {
-                if (radio && radio.checked) isAnswered = true;
+            radios.forEach(r => {
+                if (r && r.checked) isAnswered = true;
             });
-            
-            if (isAnswered) {
-                btn.classList.add('answered');
-            } else {
-                btn.classList.add('unanswered');
-            }
         }
-        
+
+        if (isAnswered) {
+            btn.classList.add('answered');
+        } else {
+            btn.classList.add('unanswered');
+        }
+
         if (i === currentQuestionIndex) {
             btn.classList.add('current');
         }
-        
+
         navDiv.appendChild(btn);
     }
 }
 
+// Timer
 function startTimer() {
     const timerInterval = setInterval(() => {
         if (timeRemaining <= 0) {
             clearInterval(timerInterval);
-            // Show toast message when time is up
             showToast('warning');
-            // Automatically submit the quiz after a short delay to allow the toast to be seen
             setTimeout(() => {
                 const form = document.getElementById('quizForm');
                 if (form) {
                     form.submit();
                 }
-            }, 3000); // Submit after 3 seconds to allow toast to be visible
+            }, 3000);
+            return;
         }
-        
+
         const minutes = Math.floor(timeRemaining / 60);
         const seconds = timeRemaining % 60;
         const timeDisplay = document.getElementById('timeDisplay');
         if (timeDisplay) {
             timeDisplay.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
         }
-        
+
         const timeElement = document.getElementById('timer');
         if (timeElement && timeRemaining <= 60) {
-            timeElement.style.color = '#e53e3e';
+            timeElement.style.color = '#f97373';
             timeElement.style.animation = 'pulse 1s infinite';
         }
-        
+
         timeRemaining--;
     }, 1000);
 }
 
+// Modal controls
 function confirmSubmit() {
     const modal = document.getElementById('confirmModal');
     if (modal) {
@@ -902,7 +1192,6 @@ function submitQuiz() {
     }
 }
 
-// Exit functionality
 function confirmExit() {
     const modal = document.getElementById('exitModal');
     if (modal) {
@@ -918,11 +1207,10 @@ function closeExitModal() {
 }
 
 function exitQuiz() {
-    // Submit the quiz when exiting
     submitQuiz();
 }
 
-// Toast notifications
+// Toast functions
 function showToast(type) {
     const toast = document.getElementById('toast-' + type);
     if (toast) {
@@ -933,118 +1221,13 @@ function showToast(type) {
     }
 }
 
-// Tab switching detection variables
-let tabSwitchCount = 0;
-let isTabActive = true;
-let tabSwitchLimit = 3;
-
-// Disable text selection and copying
-document.addEventListener('DOMContentLoaded', function() {
-    // Disable text selection on quiz content
-    const quizElements = document.querySelectorAll('.question-container, .question-container *');
-    quizElements.forEach(element => {
-        element.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        element.addEventListener('copy', function(e) {
-            e.preventDefault();
-            showToastWithMessage('warning', 'Copying is not allowed during the exam!');
-            return false;
-        });
-        
-        element.style.userSelect = 'none';
-        element.style.webkitUserSelect = 'none';
-        element.style.mozUserSelect = 'none';
-        element.style.msUserSelect = 'none';
-    });
-    
-    // Also disable copying on the entire quiz container
-    const quizContainer = document.querySelector('.card');
-    if (quizContainer) {
-        quizContainer.addEventListener('copy', function(e) {
-            e.preventDefault();
-            showToastWithMessage('warning', 'Copying is not allowed during the exam!');
-            return false;
-        });
-    }
-    
-
-});
-
-// Tab visibility API for detecting tab switches
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        // User switched away from the tab
-        handleTabSwitch();
-    } else {
-        // User came back to the tab
-        isTabActive = true;
-    }
-});
-
-function handleTabSwitch() {
-    if (!isTabActive) return; // Prevent multiple triggers
-    
-    isTabActive = false;
-    tabSwitchCount++;
-    
-    // Update warning count display
-    const warningCountElement = document.getElementById('warningCount');
-    const warningCountDisplayElement = document.getElementById('warningCountDisplay');
-    if (warningCountElement) {
-        warningCountElement.textContent = tabSwitchCount;
-    }
-    if (warningCountDisplayElement) {
-        warningCountDisplayElement.textContent = tabSwitchCount;
-    }
-    
-    // Show warning toast instead of modal
-    showToastWithMessage('warning', `Tab switching detected! Warning ${tabSwitchCount}/3`);
-    
-    // If this is the 4th violation, auto-submit
-    if (tabSwitchCount >= tabSwitchLimit) {
-        // Auto-submit the quiz
-        setTimeout(autoSubmitQuiz, 3000);
-    } else {
-        // Reset tab active status after a delay so another warning can be triggered
-        setTimeout(() => {
-            isTabActive = true;
-        }, 2000);
-    }
-}
-
-function autoSubmitQuiz() {
-    // Show auto-submit toast
-    showToast('auto-submit');
-    
-    // Submit the quiz after a delay to show the toast
-    setTimeout(function() {
-        const form = document.getElementById('quizForm');
-        if (form) {
-            // Add a hidden field to indicate exam violation
-            const violationInput = document.createElement('input');
-            violationInput.type = 'hidden';
-            violationInput.name = 'exam_violation';
-            violationInput.value = 'true';
-            form.appendChild(violationInput);
-            
-            // Submit the form
-            form.submit();
-        }
-    }, 3000);
-}
-
-// Enhanced toast function to support custom messages
 function showToastWithMessage(type, message) {
     const toast = document.getElementById('toast-' + type);
     if (toast) {
-        // Update message if provided
         if (message) {
-            const span = toast.querySelector('span:last-child');
-            if (span) {
-                span.textContent = message;
+            const spans = toast.querySelectorAll('span');
+            if (spans.length > 1) {
+                spans[1].textContent = message;
             }
         }
         toast.classList.add('show');
@@ -1054,42 +1237,172 @@ function showToastWithMessage(type, message) {
     }
 }
 
-// Add keyframe animations to document
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes titleReveal {
-        from {
-            transform: translateY(-30px);
-            opacity: 0;
+// Anti-cheating functions
+function initAntiCheating() {
+    // Prevent context menu (right-click)
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        showToastWithMessage('warning', 'Right-click is disabled during the exam!');
+    });
+
+    // Prevent common keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Allow F11 for fullscreen toggle
+        if (e.key === 'F11') {
+            return; // Let the browser handle fullscreen toggle
         }
-        to {
-            transform: translateY(0);
-            opacity: 1;
+        
+        // Prevent common shortcuts
+        if (
+            e.ctrlKey || 
+            e.shiftKey || 
+            e.altKey || 
+            e.metaKey || 
+            e.key === 'PrintScreen' ||
+            e.key === 'F12' ||
+            e.key === 'F5' ||
+            (e.ctrlKey && e.key === 'p') || // Ctrl+P for print
+            (e.ctrlKey && e.key === 's') || // Ctrl+S for save
+            (e.ctrlKey && e.key === 'c') || // Ctrl+C for copy
+            (e.ctrlKey && e.key === 'v') || // Ctrl+V for paste
+            (e.ctrlKey && e.key === 'x') || // Ctrl+X for cut
+            (e.ctrlKey && e.key === 'a')    // Ctrl+A for select all
+        ) {
+            e.preventDefault();
+            showToastWithMessage('warning', 'Keyboard shortcuts are disabled during the exam!');
         }
+    });
+
+    // Prevent print screen
+    document.addEventListener('keyup', function(e) {
+        if (e.key === 'PrintScreen') {
+            e.preventDefault();
+            showToastWithMessage('warning', 'Screenshots are not allowed during the exam!');
+            return false;
+        }
+    });
+
+    // Prevent print dialog
+    window.addEventListener('beforeprint', function(e) {
+        e.preventDefault();
+        showToastWithMessage('warning', 'Printing is not allowed during the exam!');
+        return false;
+    });
+
+    // Tab switch detection
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            handleTabSwitch();
+        }
+    });
+
+    // Fullscreen detection
+    checkFullscreenStatus();
+    fullscreenCheckInterval = setInterval(checkFullscreenStatus, 1000);
+    
+    // Window blur detection (when other applications are opened)
+    window.addEventListener('blur', function() {
+        handleTabSwitch();
+    });
+}
+
+function handleTabSwitch() {
+    // Count every tab switch regardless of the current state
+    incrementWarning();
+    
+    if (tabSwitchCount >= tabSwitchLimit) {
+        showToastWithMessage('warning', 'EXAM VIOLATION LIMIT REACHED! Auto-submitting with 0 marks...');
+        showFullscreenOverlay();
+        setTimeout(autoSubmitQuiz, 3000);
+    } else {
+        showToastWithMessage('warning', 'Tab switching detected! Warning ' + tabSwitchCount + '/' + tabSwitchLimit);
+    }
+}
+
+function handleApplicationSwitch() {
+    // This function is called when the window loses focus
+    // This could indicate another application is opened or minimized
+    // Redirect to the same handler as tab switches to use shared counter
+    handleTabSwitch();
+}
+
+function incrementWarning() {
+    const currentTime = Date.now();
+    
+    // Only increment if enough time has passed since the last violation
+    if (currentTime - lastViolationTime < violationCooldownMs) {
+        console.log('Violation cooldown active, skipping increment');
+        return;
     }
     
-    @keyframes questionReveal {
-        from {
-            transform: translateX(-20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+    lastViolationTime = currentTime;
+    tabSwitchCount++;
+    
+    const warningCountDisplayElement = document.getElementById('warningCountDisplay');
+    if (warningCountDisplayElement) {
+        warningCountDisplayElement.textContent = tabSwitchCount;
     }
     
-    @keyframes textReveal {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
+    // Also update the warning count in the fullscreen overlay if it's visible
+    const fullscreenWarningCount = document.getElementById('fullscreenWarningCount');
+    if (fullscreenWarningCount) {
+        fullscreenWarningCount.textContent = tabSwitchCount;
     }
-`;
-document.head.appendChild(style);
+    
+    // Log to console for debugging
+    console.log('Warning count:', tabSwitchCount, '/', tabSwitchLimit);
+}
+
+function checkFullscreenStatus() {
+    const isCurrentlyFullscreen = 
+        document.fullscreenElement || 
+        document.webkitFullscreenElement || 
+        document.mozFullScreenElement || 
+        document.msFullscreenElement;
+    
+    // If we were in fullscreen and now we're not, it's a violation
+    if (isFullscreen && !isCurrentlyFullscreen) {
+        handleFullscreenExit();
+    }
+    
+    isFullscreen = !!isCurrentlyFullscreen;
+}
+
+function handleFullscreenExit() {
+    // Only count as violation if the user intentionally exited fullscreen
+    // We can't reliably detect this, so we'll just increment the warning
+    // Count every fullscreen exit
+    incrementWarning();
+    
+    if (tabSwitchCount >= tabSwitchLimit) {
+        showToastWithMessage('warning', 'EXAM VIOLATION LIMIT REACHED! Auto-submitting with 0 marks...');
+        showFullscreenOverlay();
+        setTimeout(autoSubmitQuiz, 3000);
+    } else {
+        showToastWithMessage('warning', 'Fullscreen exit detected! Warning ' + tabSwitchCount + '/' + tabSwitchLimit);
+    }
+}
+
+function showFullscreenOverlay() {
+    const overlay = document.getElementById('fullscreenOverlay');
+    if (overlay) {
+        overlay.classList.add('active');
+    }
+}
+
+function autoSubmitQuiz() {
+    showToastWithMessage('error', 'AUTO-SUBMITTING EXAM WITH 0 MARKS DUE TO 3 VIOLATIONS!');
+    setTimeout(function() {
+        const form = document.getElementById('quizForm');
+        if (form) {
+            const violationInput = document.createElement('input');
+            violationInput.type = 'hidden';
+            violationInput.name = 'exam_violation';
+            violationInput.value = 'true';
+            form.appendChild(violationInput);
+            form.submit();
+        }
+    }, 3000);
+}
 </script>
 {% endblock %}

@@ -603,7 +603,6 @@
             <tr>
                 <th style="font-size: 13px;">Title</th>
                 <th style="font-size: 13px;">Created By</th>
-                <th style="font-size: 13px;">Description</th>
                 <th style="font-size: 13px;">Time Limit</th>
                 <th style="font-size: 13px;">Status</th>
                 <th style="font-size: 13px;">Attempts</th>
@@ -621,7 +620,6 @@
                         {{ quiz.created_by.username }} ({{ quiz.created_by.role }})
                     {% endif %}
                 </td>
-                <td style="font-size: 13px;">{{ quiz.description|truncatewords:10 }}</td>
                 <td style="font-size: 13px;">{{ quiz.time_limit }} mins</td>
                 <td style="font-size: 13px;">
                     {% if quiz.is_active %}

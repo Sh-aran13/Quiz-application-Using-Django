@@ -42,7 +42,7 @@ CSRF_USE_SESSIONS = False
 CSRF_COOKIE_AGE = 3600  # 1 hour
 CSRF_COOKIE_DOMAIN = None
 
-ALLOWED_HOSTS = ['quiz-application-using-django.onrender.com', '127.0.0.1', 'localhost', '0.0.0.0', '*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.137.1']
 
 # CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS = [
@@ -110,6 +110,10 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@quizapp.com')
 
+# AI Service API Keys
+PERPLEXITY_API_KEY = config('PERPLEXITY_API_KEY', default='')
+OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+GOOGLE_GEMINI_API_KEY = config('GOOGLE_GEMINI_API_KEY', default='')
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 

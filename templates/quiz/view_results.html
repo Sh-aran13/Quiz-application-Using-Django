@@ -315,6 +315,20 @@
         box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
     }
     
+    .btn-info {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        padding: 8px 20px;
+        font-size: 0.85rem;
+        border-radius: 20px;
+    }
+    
+    .btn-info:hover {
+        box-shadow: 0 12px 35px rgba(52, 152, 219, 0.6);
+        transform: translateY(-3px);
+    }
+    
     /* Advanced table styling */
     table {
         width: 100%;
@@ -539,6 +553,7 @@
                 <th style="font-size: 12px;">Total Marks</th>
                 <th style="font-size: 12px;">Percentage</th>
                 <th style="font-size: 12px;">Completed At</th>
+                <th style="font-size: 12px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -556,6 +571,16 @@
                     </span>
                 </td>
                 <td style="font-size: 13px;">{{ attempt.completed_at|date:"M d, Y H:i" }}</td>
+                <td style="font-size: 13px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <a href="{% url 'quiz_result' attempt.id %}" class="btn btn-info" style="padding: 8px 20px; font-size: 0.85rem; border-radius: 20px; width: auto;">
+                            👁️ View
+                        </a>
+                        <button onclick="confirmDelete({{ attempt.id }}, '{{ attempt.student.username|escapejs }}', '{{ attempt.quiz.title|escapejs }}')" class="btn btn-danger" style="padding: 8px 20px; font-size: 0.85rem; border-radius: 20px; width: auto;">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -572,6 +597,91 @@
 <div class="back-button-container">
     <a style="font-size: 15px;" href="{% url 'admin_dashboard' %}" class="btn btn-primary">← Back to Dashboard</a>
 </div>
+
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// Simplest possible toast function
+function showToast(msg, typ) {
+    // Hardcoded values to prevent any parameter confusion
+    var message = 'You have canceled the deletion process. No changes were made.';
+    var type = 'warning';
+    
+    // If specific values are passed, use them
+    if (arguments.length === 2 && typeof arguments[0] === 'string' && typeof arguments[1] === 'string' && 
+        !['success', 'warning', 'error', 'info'].includes(arguments[0]) && 
+        ['success', 'warning', 'error', 'info'].includes(arguments[1])) {
+        message = arguments[0];
+        type = arguments[1];
+    }
+    
+    // Validate type
+    if (!['success', 'warning', 'error', 'info'].includes(type)) {
+        type = 'info';
+    }
+    
+    var toastContainer = document.getElementById('toastContainer');
+    var toastId = 'toast_' + Date.now();
+    
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.id = toastId;
+    
+    // Create content
+    toast.innerHTML = '';
+    
+    // Add icon div
+    var iconDiv = document.createElement('div');
+    iconDiv.className = 'toast-icon';
+    
+    if (type === 'success') {
+        iconDiv.textContent = '✅';
+    } else if (type === 'error') {
+        iconDiv.textContent = '❌';
+    } else if (type === 'warning') {
+        iconDiv.textContent = '⚠️';
+    } else {
+        iconDiv.textContent = 'ℹ️';
+    }
+    
+    // Add message div
+    var messageDiv = document.createElement('div');
+    messageDiv.className = 'toast-message';
+    messageDiv.textContent = message;
+    
+    // Add close button
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close';
+    closeBtn.textContent = '×';
+    closeBtn.onclick = function() { closeToast(toastId); };
+    
+    // Append elements
+    toast.appendChild(iconDiv);
+    toast.appendChild(messageDiv);
+    toast.appendChild(closeBtn);
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(function() {
+        closeToast(toastId);
+    }, 5000);
+}
+
+function closeToast(toastId) {
+    var toast = document.getElementById(toastId);
+    if (toast && toast.parentNode) {
+        toast.style.animation = 'toastSlideIn 0.3s reverse';
+        setTimeout(function() {
+            toast.parentNode.removeChild(toast);
+        }, 300);
+    }
+}
+</script>
 
 <script>
 // Create animated particles
@@ -599,4 +709,199 @@ document.addEventListener('DOMContentLoaded', function() {
     createParticles();
 });
 </script>
+
+<!-- Confirmation Modal for Deletion -->
+<div id="confirmationModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px);">
+    <div class="modal-content" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-radius: 25px; padding: 35px; width: 450px; text-align: center; animation: modalSlideIn 0.3s ease-out; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.3); margin: 15% auto;">
+        <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+        <h3 style="color: #e74c3c; font-size: 1.8rem; font-weight: 700; margin: 0 0 15px 0;">Confirm Deletion</h3>
+        <p style="font-size: 1.1rem; color: #4a5568; margin: 0 0 20px 0;">Are you sure you want to delete this quiz result?</p>
+        <div style="background: rgba(231, 76, 60, 0.1); border-radius: 15px; padding: 15px; margin: 0 0 25px 0; display: inline-block; width: 100%;">
+            <p style="font-size: 1.1rem; margin: 0; color: #2d3748;">
+                <strong id="studentName" style="color: #e53e3e;"></strong> - <strong id="quizTitle" style="color: #2b6cb0;"></strong>
+            </p>
+        </div>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button id="confirmBtn" class="btn" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%); color: white; padding: 12px 25px; font-size: 0.95rem; font-weight: 700; border-radius: 50px; cursor: pointer; border: none; transition: all 0.3s ease; flex: 1; max-width: 180px;">
+                🗑️ Yes, Delete
+            </button>
+            <button onclick="closeModal(); return false;" class="btn" style="background: linear-gradient(135deg, #718096 0%, #4a5568 100%); color: white; padding: 12px 25px; font-size: 0.95rem; font-weight: 700; border-radius: 50px; cursor: pointer; border: none; transition: all 0.3s ease; flex: 1; max-width: 180px;">
+                ❌ Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables to hold the attempt ID for deletion
+let attemptToDelete = null;
+
+
+// Function to confirm deletion
+function confirmDelete(attemptId, studentName, quizTitle) {
+    document.getElementById('studentName').textContent = studentName;
+    document.getElementById('quizTitle').textContent = quizTitle;
+    attemptToDelete = attemptId;
+    document.getElementById('confirmationModal').style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal(event) {
+    // Prevent any event parameter from interfering
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    // Show toast when user cancels deletion
+    showToast('You have canceled the deletion process. No changes were made.', 'warning');
+    document.getElementById('confirmationModal').style.display = 'none';
+}
+
+// Confirm deletion
+document.getElementById('confirmBtn').addEventListener('click', function() {
+    if (attemptToDelete) {
+        fetch(`/delete-quiz-attempt/${attemptToDelete}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Show success message
+                showToast(data.message, 'success');
+                // Reload the page after a short delay
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showToast('Failed to delete the result. Please try again.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('An error occurred while deleting the result. Please try again.', 'error');
+        });
+        
+        // Close modal after attempting deletion
+        document.getElementById('confirmationModal').style.display = 'none';
+    }
+});
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('confirmationModal');
+    if (event.target === modal) {
+        // Ensure we call closeModal with no parameters to avoid any event issues
+        closeModal();
+    }
+};
+</script>
+
+<style>
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 500px;
+    width: 90%;
+}
+
+/* Toast Notification Styles */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 15px;
+    padding: 15px 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    animation: toastSlideIn 0.3s ease-out;
+    max-width: 400px;
+    min-width: 300px;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast.success {
+    border-left: 5px solid #38ef7d;
+}
+
+.toast.warning {
+    border-left: 5px solid #fee140;
+}
+
+.toast.error {
+    border-left: 5px solid #fa709a;
+}
+
+.toast-info {
+    border-left: 5px solid #3498db;
+}
+
+.toast-icon {
+    font-size: 1.5rem;
+    margin-right: 12px;
+}
+
+.toast-message {
+    flex: 1;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #718096;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
 {% endblock %}

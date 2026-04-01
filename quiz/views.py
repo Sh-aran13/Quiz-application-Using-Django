@@ -20,10 +20,12 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from io import BytesIO
+from html import escape
 from docx import Document
 from docx.shared import Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-
+import openai
+import google.generativeai as genai
 
 def generate_captcha(request):
     """Generate a random 6-character captcha with lowercase letters and digits"""
@@ -268,7 +270,7 @@ def add_questions(request, quiz_id):
     questions = Question.objects.filter(quiz=quiz)
     
     if request.method == 'POST':
-        form = QuestionForm(request.POST)
+        form = QuestionForm(request.POST, request.FILES)
         if form.is_valid():
             question = form.save(commit=False)
             question.quiz = quiz
@@ -286,6 +288,72 @@ def add_questions(request, quiz_id):
     
     return render(request, 'quiz/add_questions.html', context)
 
+
+@login_required
+def generate_quiz_description(request):
+    """
+    Generate a quiz description based on the title using selected AI service.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    # Allow all users with admin role AND superusers to access this feature
+    if request.user.role != 'admin' and not request.user.is_superuser:
+        return JsonResponse({'error': 'Access denied'}, status=403)
+    
+    title = request.POST.get('title', '').strip()
+    # Always use gemini as the only AI service
+    ai_service = 'gemini'
+    
+    if not title:
+        return JsonResponse({'error': 'Quiz title is required'}, status=400)
+    
+    try:
+        import requests
+        import json
+        
+        # Create a prompt for the AI
+        prompt = (f"Generate a single, professional, and very short sentence for a quiz titled '{title}'. "
+                 f"One sentence only, under 70 characters, concise and to the point.")
+        
+        if ai_service == 'gemini':
+            # Call the Google Gemini API
+            import google.generativeai as genai
+            
+            genai.configure(api_key=settings.GOOGLE_GEMINI_API_KEY)
+            
+            model = genai.GenerativeModel('gemini-pro')
+            
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.7,
+                    max_output_tokens=100  # Reduced token count for shorter responses
+                )
+            )
+            
+            description = response.text.strip()
+            
+        else:
+            # Invalid AI service specified (should not happen with current logic)
+            return JsonResponse({'error': 'Invalid AI service specified'}, status=400)
+        
+        return JsonResponse({'description': description})
+        
+    except Exception as e:
+        # Handle any errors
+        # Fallback to template-based generation if AI fails
+        descriptions = [
+            f"A quiz to test your knowledge of {title.lower()}.",
+            f"Assess your understanding of {title.lower()} concepts.",
+            f"Practice quiz for {title.lower()} fundamentals.",
+            f"Challenge yourself with this {title.lower()} quiz.",
+            f"Learn and test {title.lower()} with this quiz."
+        ]
+        
+        import random
+        description = random.choice(descriptions)
+        return JsonResponse({'description': description})
 
 @login_required
 def delete_question(request, question_id):
@@ -311,7 +379,7 @@ def edit_question(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     
     if request.method == 'POST':
-        form = QuestionForm(request.POST, instance=question)
+        form = QuestionForm(request.POST, request.FILES, instance=question)
         if form.is_valid():
             form.save()
             messages.success(request, 'Question updated successfully!')
@@ -389,6 +457,26 @@ def view_results(request):
     }
     
     return render(request, 'quiz/view_results.html', context)
+
+
+@login_required
+def delete_quiz_attempt(request, attempt_id):
+    # Allow all users with admin role AND superusers to access admin features
+    if request.user.role != 'admin' and not request.user.is_superuser:
+        messages.error(request, 'Access denied')
+        return redirect('student_dashboard')
+    
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id)
+    
+    if request.method == 'POST':
+        student_name = attempt.student.username
+        quiz_title = attempt.quiz.title
+        attempt.delete()
+        messages.success(request, f'Result for "{student_name}" in quiz "{quiz_title}" has been deleted successfully! Student can now retake the quiz.')
+        return JsonResponse({'status': 'success', 'message': f'Result for "{student_name}" in quiz "{quiz_title}" has been deleted successfully!'})
+    
+    # For GET requests, return JSON response for AJAX modal
+    return JsonResponse({'status': 'confirm', 'attempt_id': attempt_id, 'student_name': attempt.student.username, 'quiz_title': attempt.quiz.title})
 
 
 @login_required
@@ -479,13 +567,13 @@ def export_results_excel(request, quiz_id):
         cell.fill = row_fill
         cell.alignment = Alignment(horizontal='center')
         cell.border = border
-        # Highlight high scores
+        # Highlight scores based on percentage
         if attempt.percentage() >= 75:
             cell.font = Font(color="16A34A", bold=True)  # Green for excellent
         elif attempt.percentage() >= 50:
             cell.font = Font(color="CA8A04")  # Yellow for good
         else:
-            cell.font = Font(color="DC2626")  # Red for poor
+            cell.font = Font(color="DC2626")  # Red for poor (below 50%)
         
         # Total Marks
         cell = ws.cell(row=row_num, column=5, value=attempt.total_marks)
@@ -493,18 +581,20 @@ def export_results_excel(request, quiz_id):
         cell.alignment = Alignment(horizontal='center')
         cell.border = border
         
-        # Percentage with color coding
+        # Percentage with color coding (highlighting below 40% in red)
         cell = ws.cell(row=row_num, column=6, value=f"{attempt.percentage()}%")
         cell.fill = row_fill
         cell.alignment = Alignment(horizontal='center')
         cell.border = border
-        # Color code percentages
-        if attempt.percentage() >= 75:
+        # Color code percentages - highlighting below 40% in red specifically
+        if attempt.percentage() < 40:
+            cell.font = Font(color="DC2626", bold=True)  # Bold red for below 40%
+        elif attempt.percentage() >= 75:
             cell.font = Font(color="16A34A", bold=True)  # Green for excellent
         elif attempt.percentage() >= 50:
             cell.font = Font(color="CA8A04")  # Yellow for good
         else:
-            cell.font = Font(color="DC2626")  # Red for poor
+            cell.font = Font(color="DC2626")  # Regular red for 40-49%
     
     # Adjust column widths for better readability
     column_widths = {
@@ -596,20 +686,21 @@ def export_results_pdf(request, quiz_id):
     elements.append(subtitle)
     elements.append(Spacer(1, 30))
     
-    # Create table data with only roll number, email, and score
-    data = [['S.No', 'Roll Number', 'Email', 'Score']]
+    # Create table data with roll number, email, score, and percentage
+    data = [['S.No', 'Roll Number', 'Email', 'Score', 'Percentage']]
     
-    # Add data rows - show only clean score value
+    # Add data rows - show score and percentage values
     for idx, attempt in enumerate(attempts, 1):
         data.append([
             str(idx),
             attempt.student.roll_number or 'N/A',
             attempt.student.email,
-            str(attempt.score)  # Show only the numeric score value
+            str(attempt.score),  # Show only the numeric score value
+            f"{attempt.percentage():.1f}%"  # Show percentage with one decimal place
         ])
     
     # Create table with enhanced styling
-    table = Table(data, colWidths=[0.8*inch, 1.8*inch, 2.5*inch, 1.2*inch])
+    table = Table(data, colWidths=[0.8*inch, 1.8*inch, 2.5*inch, 1.0*inch, 1.5*inch])
     
     # Table styling with attractive design
     table_style = TableStyle([
@@ -627,6 +718,7 @@ def export_results_pdf(request, quiz_id):
         ('ALIGN', (1, 1), (1, -1), 'CENTER'),    # Roll Number
         ('ALIGN', (2, 1), (2, -1), 'LEFT'),      # Email
         ('ALIGN', (3, 1), (3, -1), 'CENTER'),    # Score
+        ('ALIGN', (4, 1), (4, -1), 'CENTER'),    # Percentage
         
         # Font styling
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
@@ -643,6 +735,13 @@ def export_results_pdf(request, quiz_id):
         ('TOPPADDING', (0, 1), (-1, -1), 10),
         ('BOTTOMPADDING', (0, 1), (-1, -1), 10),
     ])
+    
+    # Add conditional formatting for percentages below 40% - highlight in red
+    for idx, attempt in enumerate(attempts, 1):
+        if attempt.percentage() < 40:
+            # Apply red text color to the percentage cell
+            table_style.add('TEXTCOLOR', (4, idx), (4, idx), HexColor('#DC2626'))  # Red color
+            table_style.add('FONTNAME', (4, idx), (4, idx), 'Helvetica-Bold')    # Bold font
     
     table.setStyle(table_style)
     elements.append(table)
@@ -1158,7 +1257,7 @@ def export_students_docx(request):
     # Style header row with blue background
     for cell in table.rows[0].cells:
         # Set background color for header
-        tc = cell._element
+        tc = cell._element  # type: ignore  # Accessing private attribute for styling purposes
         tc_pr = tc.get_or_add_tcPr()
         shd = OxmlElement('w:shd')
         shd.set(qn('w:fill'), '1E40AF')  # Dark blue background
@@ -1381,7 +1480,7 @@ def export_questions_pdf(request, quiz_id):
     from datetime import datetime
     from reportlab.platypus import Paragraph
     
-    title = Paragraph(f"Quiz Questions: {quiz.title}", title_style)
+    title = Paragraph(f"Quiz Questions: {escape(quiz.title)}", title_style)
     subtitle = Paragraph(f"Generated on: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}", subtitle_style)
     
     elements.append(title)
@@ -1391,15 +1490,15 @@ def export_questions_pdf(request, quiz_id):
     # Add questions
     for idx, question in enumerate(questions, 1):
         # Question text
-        question_text = Paragraph(f"<b>Q{idx}:</b> {question.question_text}", question_style)
+        question_text = Paragraph(f"<b>Q{idx}:</b> {escape(question.question_text)}", question_style)
         elements.append(question_text)
         elements.append(Spacer(1, 10))
         
         # Options
-        option_a = Paragraph(f"<b>A.</b> {question.option_a}", option_style)
-        option_b = Paragraph(f"<b>B.</b> {question.option_b}", option_style)
-        option_c = Paragraph(f"<b>C.</b> {question.option_c}", option_style)
-        option_d = Paragraph(f"<b>D.</b> {question.option_d}", option_style)
+        option_a = Paragraph(f"<b>A.</b> {escape(question.option_a)}", option_style)
+        option_b = Paragraph(f"<b>B.</b> {escape(question.option_b)}", option_style)
+        option_c = Paragraph(f"<b>C.</b> {escape(question.option_c)}", option_style)
+        option_d = Paragraph(f"<b>D.</b> {escape(question.option_d)}", option_style)
         
         elements.append(option_a)
         elements.append(option_b)
