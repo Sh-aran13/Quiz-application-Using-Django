@@ -160,32 +160,88 @@ quiz/
 ```
 
 ## Database Models
+The database uses five main tables. The schema below shows the key fields and how each table links to the others.
 
-### User
-- Custom user model with role (student/admin)
-- Student fields: roll_number, branch
-- Admin: no additional fields
+### Table Structure
 
-### Quiz
-- Title, description, time limit
-- Created by admin
-- Active/Inactive status
+| Table | Key Fields | Purpose | Links To |
+|---|---|---|---|
+| `User` | `id`, `username`, `email`, `phone`, `role`, `roll_number`, `branch` | Stores students and admins in one custom user table | `Quiz.created_by`, `QuizAttempt.student` |
+| `Quiz` | `id`, `title`, `description`, `time_limit`, `is_active`, `created_by` | Stores quiz details created by an admin | `User` (creator), `Question.quiz`, `QuizAttempt.quiz` |
+| `Question` | `id`, `quiz`, `question_text`, `option_a`, `option_b`, `option_c`, `option_d`, `correct_answer`, `marks`, `order` | Stores MCQ questions for each quiz | `Quiz` |
+| `QuizAttempt` | `id`, `student`, `quiz`, `score`, `total_marks`, `is_completed`, `question_order` | Stores one student’s attempt for one quiz | `User`, `Quiz`, `StudentAnswer.attempt` |
+| `StudentAnswer` | `id`, `attempt`, `question`, `selected_answer`, `is_correct` | Stores each selected answer inside an attempt | `QuizAttempt`, `Question` |
 
-### Question
-- Linked to quiz
-- 4 options (A, B, C, D)
-- Correct answer
-- Marks
+### Relationship Map
 
-### QuizAttempt
-- Student-Quiz relationship
-- Score tracking
-- One attempt per student per quiz
-- Stores shuffled question order
+```mermaid
+erDiagram
+   USER ||--o{ QUIZ : creates
+   USER ||--o{ QUIZ_ATTEMPT : takes
+   QUIZ ||--o{ QUESTION : contains
+   QUIZ ||--o{ QUIZ_ATTEMPT : has
+   QUIZ_ATTEMPT ||--o{ STUDENT_ANSWER : stores
+   QUESTION ||--o{ STUDENT_ANSWER : answered_in
 
-### StudentAnswer
-- Individual question answers
-- Correct/Incorrect tracking
+   USER {
+      int id
+      string username
+      string email
+      string phone
+      string role
+      string roll_number
+      string branch
+   }
+
+   QUIZ {
+      int id
+      string title
+      text description
+      int time_limit
+      bool is_active
+      int created_by
+   }
+
+   QUESTION {
+      int id
+      int quiz
+      text question_text
+      string option_a
+      string option_b
+      string option_c
+      string option_d
+      string correct_answer
+      int marks
+      int order
+   }
+
+   QUIZ_ATTEMPT {
+      int id
+      int student
+      int quiz
+      int score
+      int total_marks
+      bool is_completed
+      text question_order
+   }
+
+   STUDENT_ANSWER {
+      int id
+      int attempt
+      int question
+      string selected_answer
+      bool is_correct
+   }
+```
+
+### How The Tables Link
+
+- One `User` can create many `Quiz` records through `Quiz.created_by`.
+- One `Quiz` can have many `Question` records through `Question.quiz`.
+- One `User` can have many `QuizAttempt` records through `QuizAttempt.student`.
+- One `Quiz` can have many `QuizAttempt` records through `QuizAttempt.quiz`.
+- One `QuizAttempt` can have many `StudentAnswer` records through `StudentAnswer.attempt`.
+- One `Question` can appear in many `StudentAnswer` rows through `StudentAnswer.question`.
 
 ## Security Features
 

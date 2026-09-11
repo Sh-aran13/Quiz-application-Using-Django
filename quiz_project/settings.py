@@ -25,39 +25,50 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quiz_project.settings')
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def env_list(name, default=''):
+    """Read comma-separated env var values as a clean list."""
+    raw = config(name, default=default)
+    return [item.strip() for item in raw.split(',') if item.strip()]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-kibw^($k-f13&jau1=)1cp7ga+@of-1wpex-j4%2vxfomkxe(^'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-kibw^($k-f13&jau1=)1cp7ga+@of-1wpex-j4%2vxfomkxe(^')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
+
+USE_HTTPS_COOKIES = not DEBUG
 
 # CSRF Settings
 CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = USE_HTTPS_COOKIES
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_AGE = 3600  # 1 hour
 CSRF_COOKIE_DOMAIN = None
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.137.1']
+ALLOWED_HOSTS = env_list(
+    'ALLOWED_HOSTS',
+    default='127.0.0.1,localhost,192.168.137.1'
+)
 
 # CSRF Trusted Origins
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-    'http://127.0.0.1',
-    'http://localhost',
-]
+CSRF_TRUSTED_ORIGINS = env_list(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://127.0.0.1:8000,http://localhost:8000,http://127.0.0.1,http://localhost'
+)
 
 # Session Settings
 SESSION_COOKIE_AGE = 1209600  # 2 weeks
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_SECURE = USE_HTTPS_COOKIES
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_SAVE_EVERY_REQUEST = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -117,25 +128,14 @@ GOOGLE_GEMINI_API_KEY = config('GOOGLE_GEMINI_API_KEY', default='')
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Check for DATABASE_URL environment variable first (for Render deployment)
-database_url = os.getenv('DATABASE_URL')
+# Check for DATABASE_URL environment variable first
+database_url = config('DATABASE_URL', default='')
 if database_url:
-    # If DATABASE_URL is set to use quizesdb, use that configuration
-    if database_url == 'postgresql://postgres:postgres@localhost:5432/quizesdb':
-        db_config = {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'quizesdb',
-            'USER': 'postgres',
-            'PASSWORD': '1328',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        }
-    else:
-        db_config = dj_database_url.config(
-            default=database_url,
-            conn_max_age=600,
-            ssl_require=True
-        )
+    db_config = dj_database_url.parse(
+        database_url,
+        conn_max_age=600,
+        ssl_require=config('DB_SSL_REQUIRE', default=False, cast=bool)
+    )
 else:
     # Check for individual database environment variables
     db_name = config('DB_NAME', default=None)
