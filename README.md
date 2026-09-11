@@ -1,40 +1,68 @@
 # Quiz Application - Django
 
-A comprehensive quiz application built with Django and PostgreSQL where administrators can create quizzes and students can attempt them.
+> A polished quiz platform built with Django and PostgreSQL for creating, taking, reviewing, and exporting quizzes with role-based access.
 
-## Features
+[![Django](https://img.shields.io/badge/Django-5.2.8-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+
+## Overview
+
+This application gives admins a clean workflow to build quizzes, add questions, review student performance, and export results. Students get a timed, single-attempt quiz experience with navigation, progress tracking, and detailed feedback after submission.
+
+## Highlights
+
+| Area | What it includes |
+|---|---|
+| Admin Dashboard | Quiz creation, question management, score review, exports |
+| Student Experience | Timed attempts, previous/next navigation, one-attempt enforcement |
+| Authentication | Student/Admin registration, captcha login, password hashing |
+| Reporting | Excel export, PDF export, detailed result review |
+
+## Core Features
 
 ### Admin Features
 - Create and manage quizzes
-- Add questions with multiple choice options
+- Add multiple-choice questions with options A, B, C, and D
 - View student responses and scores
-- Export results to Excel or PDF format
-- Export questions to PDF or DOCX format
-- View detailed analytics
+- Export results to Excel or PDF
+- Export questions to PDF or DOCX
+- View quiz analytics and attempt summaries
 
 ### Student Features
 - View available quizzes
-- Attempt quizzes (only once per quiz)
-- Navigate between questions (Next/Previous)
-- Timed quizzes with countdown timer
-- Question shuffling for randomized order
-- View detailed results after submission
-- Quiz history tracking
+- Attempt quizzes only once per quiz
+- Navigate with Next and Previous buttons
+- Take timed quizzes with countdown
+- Answer shuffled questions in a cleaner interface
+- Review detailed results after submission
+- Track quiz history over time
 
 ### Authentication Features
 - Separate registration for students and admins
 - Role-based access control
-- Login with captcha (6-digit random number)
+- Login with a 6-digit captcha
 - Password hashing for security
-- Profile page with role-based information
+- Profile page with role-specific information
 
 ## Prerequisites
 
-- Python 3.8 or higher
-- PostgreSQL 12 or higher
-- pip (Python package manager)
+| Requirement | Recommended |
+|---|---|
+| Python | 3.8+ |
+| PostgreSQL | 12+ |
+| Package Manager | `pip` |
+
+> Make sure PostgreSQL is running before you apply migrations.
 
 ## Installation & Setup
+
+### Quick Start
+
+1. Install PostgreSQL and create the database.
+2. Install Python dependencies.
+3. Apply migrations and create a superuser.
+4. Start the development server.
 
 ### 1. Install PostgreSQL
 
@@ -78,6 +106,8 @@ python manage.py runserver
 ```
 
 The application will be available at: http://127.0.0.1:8000/
+
+> Tip: For a cleaner first run, create the database and user first, then install packages, then migrate.
 
 ## Usage Guide
 
@@ -129,35 +159,26 @@ The application will be available at: http://127.0.0.1:8000/
 
 ## Project Structure
 
-```
-quiz/
-├── quiz_project/          # Project settings
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── quiz/                  # Main application
-│   ├── models.py         # Database models
-│   ├── views.py          # View logic
-│   ├── forms.py          # Form definitions
-│   ├── urls.py           # URL routing
-│   └── admin.py          # Admin configuration
-├── templates/            # HTML templates
-│   └── quiz/
-│       ├── base.html
-│       ├── login.html
-│       ├── register.html
-│       ├── admin_dashboard.html
-│       ├── student_dashboard.html
-│       ├── add_quiz.html
-│       ├── add_questions.html
-│       ├── view_results.html
-│       ├── take_quiz.html
-│       ├── quiz_result.html
-│       └── profile.html
-├── static/               # Static files (CSS, JS)
-├── manage.py
-└── requirements.txt
-```
+| Path | Purpose |
+|---|---|
+| `quiz_project/` | Django project configuration, routing, and WSGI entrypoint |
+| `quiz/` | Core app containing models, views, forms, URLs, and admin configuration |
+| `templates/quiz/` | UI templates for login, dashboards, quizzes, results, and profile pages |
+| `static/` | Shared CSS, JavaScript, and image assets |
+| `manage.py` | Django management entrypoint |
+| `requirements.txt` | Python dependency list |
+
+### Key Application Files
+
+| File | Role |
+|---|---|
+| `quiz/models.py` | Defines users, quizzes, questions, attempts, and answers |
+| `quiz/views.py` | Handles quiz flow, results, exports, and authentication logic |
+| `quiz/forms.py` | Contains the form definitions used across the app |
+| `quiz/urls.py` | Routes app-specific URLs |
+| `quiz/admin.py` | Registers models in Django admin |
+
+> The codebase is organized to keep the quiz flow cleanly separated from presentation and data storage.
 
 ## Database Models
 The database uses five main tables. The schema below shows the key fields and how each table links to the others.
@@ -245,62 +266,103 @@ erDiagram
 
 ## Security Features
 
-- Password hashing using Django's built-in authentication
-- CSRF protection
-- Login required decorators
-- Role-based access control
-- Session-based captcha validation
+| Security Layer | Implementation |
+|---|---|
+| Password storage | Django's built-in password hashing |
+| Form protection | CSRF tokens on all forms |
+| Access control | `login_required` and role checks |
+| Login validation | Session-based 6-digit captcha |
+| Session handling | Django session middleware |
 
 ## Technologies Used
 
-- **Backend**: Django 4.2+
-- **Database**: PostgreSQL
-- **Frontend**: HTML, CSS, JavaScript
-- **Export**: openpyxl (Excel), ReportLab (PDF), python-docx (DOCX)
+| Layer | Stack |
+|---|---|
+| Backend | Django 5.2.8 |
+| Database | PostgreSQL |
+| Frontend | HTML, CSS, JavaScript |
+| Excel Export | openpyxl |
+| PDF Export | ReportLab |
+| DOCX Export | python-docx |
+
+## Deployment
+
+> Recommended production setup: PythonAnywhere for hosting the app, PostgreSQL for data, and a secure environment-based `DATABASE_URL`.
+
+### Suggested Runtime Settings
+
+| Setting | Value |
+|---|---|
+| `DEBUG` | `False` |
+| `ALLOWED_HOSTS` | Your PythonAnywhere domain |
+| `CSRF_TRUSTED_ORIGINS` | Your HTTPS domain |
+| `DATABASE_URL` | External PostgreSQL connection string |
+
+### Deployment Notes
+
+- Run `python manage.py collectstatic --noinput` before reloading the app.
+- Set your production secret key and database credentials through environment variables.
+- If you are tunneling PostgreSQL through ngrok, keep the tunnel running while the app is online.
 
 ## Default Credentials (if created)
 
-After running migrations, you can create users via registration page or Django admin.
+After running migrations, create users through the registration page or Django admin. There are no built-in default credentials.
 
 ## Troubleshooting
 
 ### Database Connection Error
-- Ensure PostgreSQL is running
-- Check database credentials in `settings.py`
-- Verify database exists
+| Check | What to verify |
+|---|---|
+| PostgreSQL service | Confirm the server is running |
+| Credentials | Verify username, password, host, and port |
+| Database name | Confirm the target database exists |
+| Tunneling | If using ngrok, confirm the tunnel is active |
 
 ### Migration Errors
-- Delete migrations folder (except __init__.py)
-- Run `python manage.py makemigrations`
-- Run `python manage.py migrate`
+| Step | Action |
+|---|---|
+| 1 | Keep `__init__.py` and clear only broken migration files if needed |
+| 2 | Run `python manage.py makemigrations` |
+| 3 | Run `python manage.py migrate` |
 
 ### Static Files Not Loading
-- Run `python manage.py collectstatic`
-- Check STATIC_ROOT in settings.py
+| Check | Action |
+|---|---|
+| Build assets | Run `python manage.py collectstatic` |
+| Static root | Confirm `STATIC_ROOT` is configured correctly |
+| Web config | Verify static mapping on PythonAnywhere |
 
 ## Recent Enhancements
 
-- Question shuffling for students
-- Enhanced quiz interface with animations
-- Exit quiz functionality with confirmation
-- Question export to PDF/DOCX formats
-- Improved UI/UX with better animations and visual feedback
+| Enhancement | Result |
+|---|---|
+| Question shuffling | More varied quiz attempts |
+| Animated quiz UI | Better visual feedback |
+| Exit confirmation | Fewer accidental exits |
+| PDF/DOCX exports | Easier offline sharing |
+| UI polish | Cleaner interactions and layout flow |
 
 ## Future Enhancements
 
-- Question categories/tags
-- Random question selection
-- Question banks
-- Image support in questions
-- Certificate generation
-- Email notifications
-- Quiz scheduling
-- Question difficulty levels
-- Negative marking option
+| Idea | Benefit |
+|---|---|
+| Question categories/tags | Better quiz organization |
+| Random question selection | Stronger assessment variety |
+| Question banks | Easier reuse of content |
+| Image support in questions | Richer question formats |
+| Certificate generation | Better completion rewards |
+| Email notifications | Improved user communication |
+| Quiz scheduling | Controlled quiz availability |
+| Difficulty levels | More precise assessment design |
+| Negative marking | More advanced scoring options |
 
 ## License
 
 This project is open source and available for educational purposes.
+
+---
+
+If you want a more interactive presentation, the next step would be turning this README into a full landing-page style document with icons, section banners, and a screenshot gallery.
 ## Support
 
 For issues or questions, please create an issue in the repository.
